@@ -1,0 +1,34 @@
+name: PR actions
+on:
+  pull_request:
+    types: [opened, reopened, edited]
+    branches:
+      - dev
+      - main
+jobs:
+  preview:
+    name: Preview
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - run: pip install -r ./pulumi/requirements.txt
+      - uses: pulumi/actions@v4
+        with:
+          work-dir: ./pulumi/
+          command: preview
+          stack-name: ${{ github.base_ref }}
+          comment-on-pr: true
+          comment-on-summary: true
+          color: always
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

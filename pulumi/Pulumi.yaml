@@ -1,0 +1,6 @@
+name: sityex-data
+runtime:
+  name: python
+description: Baseline for all the infrastructure needed for SityEx
+globalTags:
+  project_name: "sityex-data"

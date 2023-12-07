@@ -1,0 +1,11 @@
+-e containers/scrapper/
+-e containers/api_extractor/
+-e containers/data_uploader/
+-e containers/partner_uploader/
+-e containers/fever_downloader/
+-e parser/
+-e pulumi/
+-e files/
+-e aws_lib/
+-e local_scripts/
+pre-commit==3.4.0
