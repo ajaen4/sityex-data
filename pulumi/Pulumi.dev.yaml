@@ -1,0 +1,95 @@
+config:
+  aws:region: eu-west-1
+  containers_config:
+    data_uploader:
+      build_version: 0.0.5 # data_uploader version
+      env_variables:
+        - name: ENV
+          value: dev
+    partner_uploader:
+      build_version: 0.0.6 # partner_uploader version
+      cron_expression: cron(0 5 ? * SUN *)
+      env_variables:
+        - name: ENV
+          value: dev
+    scrapper:
+      build_version: 0.0.1 # scrapper version
+    api_extractor:
+      build_version: 0.0.2 # api_extractor version
+      env_variables:
+        - name: MIN_POPULATION
+          value: "50000"
+        - name: GEO_DB_REQUEST_LIMIT
+          value: "10"
+        - name: WEATHER_HOURLY_METRICS
+          value: "cloudcover,relativehumidity_2m"
+        - name: WEATHER_DAILY_METRICS
+          value: "temperature_2m_mean,sunrise,sunset,precipitation_hours"
+        - name: AIR_QUAL_HOURLY_METRICS
+          value: european_aqi
+        - name: WEATHER_TIME_WINDOW_START
+          value: "2022-01-01"
+        - name: METRICS_TIME_WINDOW_END
+          value: "2022-12-31"
+        - name: AIR_QUAL_WINDOW_START
+          value: "2022-10-01"
+        - name: AIR_QUAL_WINDOW_END
+          value: "2023-09-30"
+        - name: RUN_GEODB
+          value: "False"
+        - name: RUN_COUNT_CITIES
+          value: "False"
+        - name: RUN_IMF
+          value: "False"
+        - name: RUN_OPEN_METEO
+          value: "False"
+    fever_downloader:
+      build_version: 0.0.4 # fever_downloader version
+      cron_expression: cron(0 3 * * ? *)
+      env_variables:
+        - name: FEVER_GDRIVE_FILE_ID
+          value: 1U8TPpGz0wjM0r33vbxKnkbB9-Vqw6J5wq5CoKqOzSh4
+  jobs_configs:
+    all_cities:
+      number_of_workers: 4
+      args:
+        --PROCESSED_DATE: 11-10-2023
+        --BIG_CITY_POP_THRESHOLD: 1000000
+        --BIG_CITY_KM_THRESHOLD: 20.0
+        --TESTING_PREFIX: "None"
+    costs_consolidation:
+      number_of_workers: 10
+      args:
+        --PROCESSED_DATE: 11-10-2023
+        --TESTING_PREFIX: "None"
+        --TESTING_FILE_NAME: "None"
+    indicators:
+      number_of_workers: 2
+      args:
+        --PROCESSED_DATE: 11-10-2023
+        --TESTING_PREFIX: "None"
+    taxes:
+      number_of_workers: 2
+      args:
+        --PROCESSED_DATE: 11-10-2023
+        --TESTING_PREFIX: "None"
+    weather:
+      number_of_workers: 25
+      args:
+        --PROCESSED_DATE: 11-10-2023
+        --TESTING_PREFIX: "None"
+        --TESTING_CITY_ID: "None"
+    tags:
+      number_of_workers: 4
+      args:
+        --PROCESSED_DATE: 11-10-2023
+        --TESTING_PREFIX: "None"
+        --TESTING_CITY_ID: "None"
+    fever:
+      number_of_workers: 2
+      cron_expression: cron(0 4 * * ? *)
+      args:
+        --PROCESSED_DATE_CITIES: 11-10-2023
+        --PROCESSED_DATE_FEVER: 16-11-2023
+        --TESTING_PREFIX: "None"
+        --TESTING_CITY_ID: "None"
