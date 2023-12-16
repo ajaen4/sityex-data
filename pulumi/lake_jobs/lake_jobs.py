@@ -84,6 +84,25 @@ class LakeJobs:
             retention_in_days=30,
         )
 
+        job_arguments = pulumi.Output.all(
+            log_group_name=log_group.name,
+            data_bucket_name=self.baseline_stack_ref.get_output("data_bucket_name"),
+            jobs_bucket_name=self.baseline_stack_ref.get_output("jobs_bucket_name"),
+            logger_script_key=self.logger_script.key,
+        ).apply(
+            lambda args: {
+                    "--job-language": "python",
+                    "--job-bookmark-option": "job-bookmark-enable",
+                    "--continuous-log-logGroup": args["log_group_name"],
+                    "--enable-continuous-cloudwatch-log": "true",
+                    "--enable-continuous-log-filter": "true",
+                    "--enable-metrics": "",
+                    "--DATA_BUCKET_NAME": args["data_bucket_name"],
+                    "--extra-py-files": f's3://{args["jobs_bucket_name"]}/{args["logger_script_key"]}',
+                    **job_config.args,
+                }
+        )
+
         glue_job = glue.Job(
             f"{job_name}-job",
             glue.JobArgs(
@@ -92,28 +111,7 @@ class LakeJobs:
                 glue_version="4.0",
                 number_of_workers=job_config.number_of_workers,
                 worker_type="G.1X",
-                default_arguments={
-                    "--job-language": "python",
-                    "--job-bookmark-option": "job-bookmark-enable",
-                    "--continuous-log-logGroup": log_group.name.apply(
-                        lambda name: name
-                    ),
-                    "--enable-continuous-cloudwatch-log": "true",
-                    "--enable-continuous-log-filter": "true",
-                    "--enable-metrics": "",
-                    "--DATA_BUCKET_NAME": self.baseline_stack_ref.get_output(
-                        "data_bucket_id"
-                    ).apply(lambda bucket_name: bucket_name),
-                    "--extra-py-files": pulumi.Output.all(
-                        bucket_name=self.baseline_stack_ref.get_output(
-                            "jobs_bucket_name"
-                        ),
-                        script_key=self.logger_script.key,
-                    ).apply(
-                        lambda args: f's3://{args["bucket_name"]}/{args["script_key"]}'
-                    ),
-                    **job_config.args,
-                },
+                default_arguments=job_arguments,
                 command=glue.JobCommandArgs(
                     script_location=pulumi.Output.all(
                         bucket_name=self.baseline_stack_ref.get_output(

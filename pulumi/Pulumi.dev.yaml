@@ -90,6 +90,5 @@ config:
       cron_expression: cron(0 4 * * ? *)
       args:
         --PROCESSED_DATE_CITIES: 11-10-2023
-        --PROCESSED_DATE_FEVER: 16-11-2023
         --TESTING_PREFIX: "None"
         --TESTING_CITY_ID: "None"
