@@ -1,7 +1,7 @@
 import json
 
 import pulumi
-from pulumi_aws import ecs, iam, cloudwatch, ec2, s3
+from pulumi_aws import ecs, iam, cloudwatch
 
 from .repository import Repository
 from .image import Image
