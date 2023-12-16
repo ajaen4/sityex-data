@@ -8,4 +8,5 @@
 -e files/
 -e aws_lib/
 -e local_scripts/
+-e .
 pre-commit==3.4.0
