@@ -99,6 +99,7 @@ class LakeJobs:
                     "--enable-metrics": "",
                     "--DATA_BUCKET_NAME": args["data_bucket_name"],
                     "--extra-py-files": f's3://{args["jobs_bucket_name"]}/{args["logger_script_key"]}',
+                    "--additional-python-modules": ",".join(job_config.additional_python_modules),
                     **job_config.args,
                 }
         )

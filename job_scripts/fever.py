@@ -7,6 +7,7 @@ from awsglue.context import GlueContext
 from awsglue.job import Job
 import unicodedata
 from datetime import datetime
+import re
 
 from logger import logger
 
@@ -17,6 +18,7 @@ from pyspark.sql.functions import (
     split,
     collect_set,
     concat_ws,
+    concat,
     trim,
     udf,
     regexp_replace,
@@ -31,17 +33,62 @@ from pyspark.sql.types import (
     StringType,
     FloatType,
     IntegerType,
-    DateType,
 )
+
+from deep_translator import GoogleTranslator
 
 
 def main():
+
     def remove_diacritics(text: str):
         nfkd_form = unicodedata.normalize("NFKD", text)
         ascii_string = nfkd_form.encode("ASCII", "ignore")
         return ascii_string.decode("utf-8")
 
     remove_diacritics_udf = udf(remove_diacritics, StringType())
+
+    def add_newlines(text):
+        # Regular expression for emojis
+        emoji_pattern = re.compile(
+            "["
+            "\U0001F600-\U0001F64F"  # emoticons
+            "\U0001F300-\U0001F5FF"  # symbols & pictographs
+            "\U0001F680-\U0001F6FF"  # transport & map symbols
+            "\U0001F700-\U0001F77F"  # alchemical symbols
+            "\U0001F780-\U0001F7FF"  # Geometric Shapes Extended
+            "\U0001F800-\U0001F8FF"  # Supplemental Arrows-C
+            "\U0001F900-\U0001F9FF"  # Supplemental Symbols and Pictographs
+            "\U0001FA00-\U0001FA6F"  # Chess Symbols
+            "\U0001FA70-\U0001FAFF"  # Symbols and Pictographs Extended-A
+            "\U00002702-\U000027B0"  # Dingbats
+            "\U000024C2-\U0001F251"
+            "⏳"
+            "]+",
+            flags=re.UNICODE,
+        )
+
+        phrase_pattern = re.compile(
+            r"Que vas a disfrutar|Información( adicional)?:?|Descripción|Intérpretes?:?|Programa Candlelight[a-zA-Z0-9 ]*:|Opiniones.*💬"
+        )
+
+        text = phrase_pattern.sub(r"\n\n\g<0>\n", text)
+        text = emoji_pattern.sub(r"\n\g<0>", text)
+
+        return text
+
+    add_newlines_udf = udf(add_newlines, StringType())
+
+    def translate_to_english(text):
+        if text and len(text.strip()) > 0:
+            try:
+                return GoogleTranslator(source='es', target='en').translate(text)
+            except Exception as e:
+                logger.error(f"Error in translation: {e}")
+                return text
+        else:
+            return text
+
+    translate_udf = udf(translate_to_english, StringType())
 
     args = getResolvedOptions(
         sys.argv,
@@ -251,8 +298,38 @@ def main():
         .drop("sku_org", "subcategory")
     )
 
+    logger.info("Adding new lines to descriptions...")
+
+    catalog_with_formatted_descs = (
+        catalog_with_sityex_subcategories.withColumn(
+            "description", add_newlines_udf(col("description"))
+        )
+    )
+
+    logger.info("Added new lines to descriptions")
+
+    logger.info("Translating descriptions...")
+
+    catalog_translated = (
+        catalog_with_formatted_descs
+        .withColumn("description_en", translate_udf(col("description")))
+        .withColumnRenamed("description", "description_es")
+    )
+
+    logger.info("Translated descriptions")
+
+    logger.info("Adding partner field...")
+
+    catalog_with_partner = (
+        catalog_translated
+        .withColumn("partner", lit("fever"))
+        .withColumn("sku", concat(lit("f"), col("sku")))
+    )
+
+    logger.info("Added partner field")
+
     (
-        catalog_with_sityex_subcategories.coalesce(1).write.mode("overwrite")
+        catalog_with_partner.coalesce(1).write.mode("overwrite")
         # fmt: off
         .options(header="True", delimiter=",", quote="\"", escape="\"")
         # fmt: on

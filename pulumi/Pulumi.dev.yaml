@@ -7,8 +7,8 @@ config:
         - name: ENV
           value: dev
     partner_uploader:
-      build_version: 0.0.6 # partner_uploader version
-      cron_expression: cron(0 5 ? * SUN *)
+      build_version: 1.0.0 # partner_uploader version
+      cron_expression: cron(0 6 ? * SUN *)
       env_variables:
         - name: ENV
           value: dev
@@ -88,6 +88,8 @@ config:
     fever:
       number_of_workers: 2
       cron_expression: cron(0 4 * * ? *)
+      additional_python_modules:
+        - deep_translator
       args:
         --PROCESSED_DATE_CITIES: 11-10-2023
         --TESTING_PREFIX: "None"
