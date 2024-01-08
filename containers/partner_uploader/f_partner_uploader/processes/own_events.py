@@ -1,5 +1,4 @@
 from firebase_admin import firestore
-from datetime import datetime
 import polars as pl
 from polars import col
 
@@ -8,22 +7,20 @@ from parser.strings import remove_diacritics
 from f_partner_uploader.logger import logger
 import f_partner_uploader.config as cfg
 from f_partner_uploader.services import fire_client, s3_client
+
 from .common import get_file_path
 
 
-def upload_fever_data():
+def upload_own_events():
     cities_file_dir = f"silver/cities/geographical/all_cities/{cfg.FORMATTED_DATE}/"
     cities_file_path = get_file_path(s3_client, cities_file_dir)
     cities_info = s3_client.read_dics(cfg.DATA_BUCKET_NAME, cities_file_path)
 
-    now = datetime.now()
-    TODAY_DATE = now.strftime("%d-%m-%Y")
-    fever_data_dir = f"silver/partners/fever/catalog/{TODAY_DATE}/"
-    fever_data_path = get_file_path(s3_client, fever_data_dir)
-    fever_data = s3_client.read_dics(cfg.DATA_BUCKET_NAME, fever_data_path)
+    OWN_EVENTS_DATA_PATH = "maps/sityex_events.csv"
+    own_events = s3_client.read_dics(cfg.DATA_BUCKET_NAME, OWN_EVENTS_DATA_PATH)
 
-    cities_to_show = "maps/cities_to_show.csv"
-    cities_to_show = s3_client.read_dics(cfg.DATA_BUCKET_NAME, cities_to_show)
+    CITIES_TO_SHOW_DATA_PATH = "maps/cities_to_show.csv"
+    cities_to_show = s3_client.read_dics(cfg.DATA_BUCKET_NAME, CITIES_TO_SHOW_DATA_PATH)
     cities_to_show = [
         remove_diacritics(row["cities_to_show"]) for row in cities_to_show
     ]
@@ -36,27 +33,27 @@ def upload_fever_data():
         ):
             continue
 
-        fever_city_data = pl.DataFrame(fever_data).filter(
+        own_events_city_data = pl.DataFrame(own_events).filter(
             col("city_id") == doc["geonameid"]
         )
 
         logger.info(f'Uploading doc number {index}, city_name: {doc["name"]}...')
 
         events_ref = collection_ref.document(doc["geonameid"]).collection("events")
-        upload_fever_city_data(events_ref, fever_city_data)
+        upload_own_event(events_ref, own_events_city_data)
 
 
-def upload_fever_city_data(events_ref: firestore, fever_data=pl.DataFrame):
-    skus = [doc.id for doc in events_ref.stream()]
+def upload_own_event(events_ref: firestore, own_events_city_data=pl.DataFrame):
+    event_ids = [doc.id for doc in events_ref.stream()]
 
-    for sku in skus:
-        if sku not in fever_data["sku"]:
-            logger.info(f"Deleting sku: {sku}")
-            events_ref.document(sku).delete()
+    for event_id in event_ids:
+        if event_id not in own_events_city_data["event_id"]:
+            logger.info(f"Deleting event_id: {event_id}")
+            events_ref.document(event_id).delete()
 
-    for doc in fever_data.to_dicts():
+    for doc in own_events_city_data.to_dicts():
         doc["coordinates"] = dict()
         doc["coordinates"]["latitude"] = float(doc["latitude"])
         doc["coordinates"]["longitude"] = float(doc["longitude"])
 
-        events_ref.document(doc["sku"]).set(doc)
+        events_ref.document(doc["event_id"]).set(doc)
