@@ -22,6 +22,7 @@ from pyspark.sql.functions import (
     trim,
     udf,
     regexp_replace,
+    regexp_extract,
     when,
     array,
     lit,
@@ -35,11 +36,11 @@ from pyspark.sql.types import (
     IntegerType,
 )
 
-from deep_translator import GoogleTranslator
+import boto3
+import time
 
 
 def main():
-
     def remove_diacritics(text: str):
         nfkd_form = unicodedata.normalize("NFKD", text)
         ascii_string = nfkd_form.encode("ASCII", "ignore")
@@ -78,17 +79,25 @@ def main():
 
     add_newlines_udf = udf(add_newlines, StringType())
 
-    def translate_to_english(text):
-        if text and len(text.strip()) > 0:
-            try:
-                return GoogleTranslator(source='es', target='en').translate(text)
-            except Exception as e:
-                logger.error(f"Error in translation: {e}")
-                return text
-        else:
-            return text
+    def start_translation_job(translate_client, s3_input_uri, s3_output_uri):
+        response = translate_client.start_text_translation_job(
+            JobName="TranslateFeverEvents",
+            InputDataConfig={"S3Uri": s3_input_uri, "ContentType": "text/plain"},
+            OutputDataConfig={"S3Uri": s3_output_uri},
+            DataAccessRoleArn="arn:aws:iam::744516196303:role/service-role/AmazonTranslateServiceRole-test-DELETE",
+            SourceLanguageCode="es",
+            TargetLanguageCodes=["en"],
+        )
+        return response["JobId"]
 
-    translate_udf = udf(translate_to_english, StringType())
+    def check_job_status(translate_client, job_id):
+        while True:
+            response = translate_client.describe_text_translation_job(JobId=job_id)
+            status = response["TextTranslationJobProperties"]["JobStatus"]
+            print(f"Job {job_id} status: {status}")
+            if status in ["COMPLETED", "FAILED", "STOP_REQUESTED"]:
+                return status
+            time.sleep(60)
 
     args = getResolvedOptions(
         sys.argv,
@@ -204,6 +213,7 @@ def main():
             "longitude", split(col("coordinates"), ";").getItem(1).cast("float")
         )
         .drop("coordinates")
+        .withColumnRenamed("description", "description_es")
     )
 
     logger.info("Duplicated SKUs:")
@@ -300,39 +310,145 @@ def main():
 
     logger.info("Adding new lines to descriptions...")
 
-    catalog_with_formatted_descs = (
-        catalog_with_sityex_subcategories.withColumn(
-            "description", add_newlines_udf(col("description"))
-        )
+    catalog_with_formatted_descs = catalog_with_sityex_subcategories.withColumn(
+        "description_es", add_newlines_udf(col("description_es"))
     )
 
     logger.info("Added new lines to descriptions")
 
-    logger.info("Translating descriptions...")
-
-    catalog_translated = (
-        catalog_with_formatted_descs
-        .withColumn("description_en", translate_udf(col("description")))
-        .withColumnRenamed("description", "description_es")
-    )
-
-    logger.info("Translated descriptions")
-
     logger.info("Adding partner field...")
 
-    catalog_with_partner = (
-        catalog_translated
-        .withColumn("partner", lit("fever"))
-        .withColumn("sku", concat(lit("f"), col("sku")))
-    )
+    catalog_with_partner = catalog_with_formatted_descs.withColumn(
+        "partner", lit("fever")
+    ).withColumn("sku", concat(lit("f"), col("sku")))
 
     logger.info("Added partner field")
 
+    logger.info("Checking if all translations is present...")
+
+    s3_client = boto3.client("s3")
+    response = s3_client.list_objects_v2(
+        Bucket=DATA_BUCKET_NAME,
+        Prefix="silver/partners/fever/translation/all/",
+        MaxKeys=1,
+    )
+
+    if "Contents" in response:
+        all_translations_present = True
+
+    else:
+        all_translations_present = False
+
+    logger.info(f"all_translations_present: {all_translations_present}")
+
+    logger.info("Checked if all translations is present")
+
+    ALL_TRANSLATIONS_PATH = (
+        f"s3a://{DATA_BUCKET_NAME}/silver/partners/fever/translation/all/"
+    )
+
+    if all_translations_present:
+        all_translations = spark.read.parquet(ALL_TRANSLATIONS_PATH)
+
+    if all_translations_present:
+        events_to_translate = catalog_with_partner.join(
+            all_translations,
+            catalog_with_partner.sku == all_translations.sku,
+            "left_anti",
+        )
+    else:
+        events_to_translate = catalog_with_partner
+
+    num_events_to_translate = events_to_translate.count()
+
+    logger.info(f"Num of events to translate: {num_events_to_translate}")
+
+    if num_events_to_translate != 0:
+        logger.info("Writing description column into separate file for translation...")
+        TRANSLATION_INPUT_BASE = (
+            f"silver/partners/fever/translation/daily/{PROCESSED_DATE_FEVER}/input"
+        )
+        for _, row in events_to_translate.toPandas().iterrows():
+            s3_client.put_object(
+                Bucket=DATA_BUCKET_NAME,
+                Key=f"{TRANSLATION_INPUT_BASE}/{row['sku']}",
+                Body=row["description_es"],
+            )
+
+        logger.info(
+            "Finished writing description column into separate file for translation"
+        )
+
+        logger.info("Waiting for translation to finish...")
+
+        TRANS_OUT_KEY = (
+            f"silver/partners/fever/translation/daily/{PROCESSED_DATE_FEVER}/output/"
+        )
+        translate_client = boto3.client("translate", region_name="eu-west-1")
+        job_id = start_translation_job(
+            translate_client,
+            f"s3://{DATA_BUCKET_NAME}/{TRANSLATION_INPUT_BASE}",
+            f"s3://{DATA_BUCKET_NAME}/{TRANS_OUT_KEY}",
+        )
+        check_job_status(translate_client, job_id)
+
+        sc = spark.sparkContext
+        catalog_path = f"s3a://{DATA_BUCKET_NAME}/{TRANS_OUT_KEY}/744516196303-TranslateText-{job_id}/"
+        rdd = sc.wholeTextFiles(catalog_path)
+
+        output_translation = rdd.toDF(["file_name", "description_en"])
+        file_name_pattern = "en\\.(.*)"
+        output_translation = output_translation.withColumn(
+            "sku", regexp_extract(col("file_name"), file_name_pattern, 1)
+        ).select("sku", "description_en")
+        output_translation.show(10, False)
+
+        logger.info("Translation finished")
+
+    else:
+        logger.info("Skipping translation as there are no new events to translate")
+
+    if all_translations_present and num_events_to_translate != 0:
+        new_all_translations = all_translations.union(output_translation)
+    elif all_translations_present and num_events_to_translate == 0:
+        new_all_translations = all_translations
+    else:
+        new_all_translations = output_translation
+
+    logger.info("Writing backup...")
+
+    BACKUP_PATH = f"s3a://{DATA_BUCKET_NAME}/silver/partners/fever/translation/backup/"
+    (new_all_translations.write.mode("overwrite").parquet(BACKUP_PATH))
+
+    logger.info("Wrote backup")
+
+    new_all_translations = spark.read.parquet(BACKUP_PATH)
+
+    logger.info("Writing all translations...")
+
     (
-        catalog_with_partner.coalesce(1).write.mode("overwrite")
-        # fmt: off
-        .options(header="True", delimiter=",", quote="\"", escape="\"")
-        # fmt: on
+        new_all_translations.write.mode("overwrite").parquet(
+            f"s3a://{DATA_BUCKET_NAME}/silver/partners/fever/translation/all/"
+        )
+    )
+
+    logger.info("Wrote all translations")
+
+    logger.info("Joining translations and catalog...")
+
+    final_catalog = catalog_with_partner.join(
+        new_all_translations,
+        catalog_with_partner.sku == new_all_translations.sku,
+        "left",
+    )
+    final_catalog = final_catalog.drop(new_all_translations.sku)
+
+    logger.info("Joined translations and catalog")
+
+    (
+        final_catalog.coalesce(1)
+        .write.mode("overwrite")
+        .options(header="True", delimiter=",", quote='"', escape='"')
         .csv(
             f"s3a://{DATA_BUCKET_NAME}{TESTING_PREFIX}/silver/partners/fever/catalog/{PROCESSED_DATE_FEVER}/"
         )

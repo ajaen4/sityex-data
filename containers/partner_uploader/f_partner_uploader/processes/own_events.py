@@ -1,5 +1,4 @@
 from firebase_admin import firestore
-from datetime import datetime
 import polars as pl
 from polars import col
 
@@ -9,19 +8,25 @@ from f_partner_uploader.logger import logger
 import f_partner_uploader.config as cfg
 from f_partner_uploader.services import fire_client, s3_client
 
+from .common import get_file_path
+
 
 def upload_own_events():
-    own_events_data_path = "maps/sityex_events.csv"
-    own_events = s3_client.read_dics(cfg.DATA_BUCKET_NAME, own_events_data_path)
+    cities_file_dir = f"silver/cities/geographical/all_cities/{cfg.FORMATTED_DATE}/"
+    cities_file_path = get_file_path(s3_client, cities_file_dir)
+    cities_info = s3_client.read_dics(cfg.DATA_BUCKET_NAME, cities_file_path)
 
-    cities_to_show = "maps/cities_to_show.csv"
-    cities_to_show = s3_client.read_dics(cfg.DATA_BUCKET_NAME, cities_to_show)
+    OWN_EVENTS_DATA_PATH = "maps/sityex_events.csv"
+    own_events = s3_client.read_dics(cfg.DATA_BUCKET_NAME, OWN_EVENTS_DATA_PATH)
+
+    CITIES_TO_SHOW_DATA_PATH = "maps/cities_to_show.csv"
+    cities_to_show = s3_client.read_dics(cfg.DATA_BUCKET_NAME, CITIES_TO_SHOW_DATA_PATH)
     cities_to_show = [
         remove_diacritics(row["cities_to_show"]) for row in cities_to_show
     ]
 
     collection_ref = fire_client.collection("cities")
-    for index, doc in enumerate(own_events):
+    for index, doc in enumerate(cities_info):
         if (
             doc["country_3_code"] != "ESP"
             or remove_diacritics(doc["name"]) not in cities_to_show
@@ -34,7 +39,7 @@ def upload_own_events():
 
         logger.info(f'Uploading doc number {index}, city_name: {doc["name"]}...')
 
-        events_ref = collection_ref.document(doc["city_id"]).collection("events")
+        events_ref = collection_ref.document(doc["geonameid"]).collection("events")
         upload_own_event(events_ref, own_events_city_data)
 
 
