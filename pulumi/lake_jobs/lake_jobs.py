@@ -84,6 +84,15 @@ class LakeJobs:
             retention_in_days=30,
         )
 
+        if job_config.additional_python_modules:
+            add_python_modules = {
+                "--additional-python-modules": ",".join(
+                    job_config.additional_python_modules
+                ),
+            }
+        else:
+            add_python_modules = {}
+
         job_arguments = pulumi.Output.all(
             log_group_name=log_group.name,
             data_bucket_name=self.baseline_stack_ref.get_output("data_bucket_name"),
@@ -91,16 +100,17 @@ class LakeJobs:
             logger_script_key=self.logger_script.key,
         ).apply(
             lambda args: {
-                    "--job-language": "python",
-                    "--job-bookmark-option": "job-bookmark-enable",
-                    "--continuous-log-logGroup": args["log_group_name"],
-                    "--enable-continuous-cloudwatch-log": "true",
-                    "--enable-continuous-log-filter": "true",
-                    "--enable-metrics": "",
-                    "--DATA_BUCKET_NAME": args["data_bucket_name"],
-                    "--extra-py-files": f's3://{args["jobs_bucket_name"]}/{args["logger_script_key"]}',
-                    **job_config.args,
-                }
+                "--job-language": "python",
+                "--job-bookmark-option": "job-bookmark-enable",
+                "--continuous-log-logGroup": args["log_group_name"],
+                "--enable-continuous-cloudwatch-log": "true",
+                "--enable-continuous-log-filter": "true",
+                "--enable-metrics": "",
+                "--DATA_BUCKET_NAME": args["data_bucket_name"],
+                "--extra-py-files": f's3://{args["jobs_bucket_name"]}/{args["logger_script_key"]}',
+                **add_python_modules,
+                **job_config.args,
+            }
         )
 
         glue_job = glue.Job(

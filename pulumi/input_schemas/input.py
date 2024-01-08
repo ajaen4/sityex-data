@@ -17,6 +17,7 @@ class JobConfig:
     number_of_workers: int
     args: dict[str, str] = None
     cron_expression: str = None
+    additional_python_modules: list[str] = None
 
 
 @dataclass
@@ -65,6 +66,11 @@ class Input:
             cron_expression = (
                 config["cron_expression"] if "cron_expression" in config else None
             )
+            additional_python_modules = (
+                config["additional_python_modules"]
+                if "additional_python_modules" in config
+                else []
+            )
             number_of_workers = (
                 config["number_of_workers"] if "number_of_workers" in config else 2
             )
@@ -75,6 +81,7 @@ class Input:
                     number_of_workers=number_of_workers,
                     args=args,
                     cron_expression=cron_expression,
+                    additional_python_modules=additional_python_modules,
                 )
             )
 
