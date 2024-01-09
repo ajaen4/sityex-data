@@ -7,7 +7,7 @@ config:
         - name: ENV
           value: prod
     partner_uploader:
-      build_version: 1.0.0 # partner_uploader version
+      build_version: 1.1.0 # partner_uploader version
       cron_expression: cron(0 5 * * ? *)
       env_variables:
         - name: ENV
