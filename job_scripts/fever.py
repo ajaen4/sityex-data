@@ -166,8 +166,8 @@ def main():
             StructField("venue", StringType(), True),
             StructField("location", StringType(), True),
             StructField("coordinates", StringType(), True),
-            StructField("sku", IntegerType(), True),
-            StructField("plan_name", StringType(), True),
+            StructField("event_id", IntegerType(), True),
+            StructField("plan_name_es", StringType(), True),
             StructField("affiliate_url", StringType(), True),
             StructField("fever_url", StringType(), True),
             StructField("description", StringType(), True),
@@ -216,10 +216,14 @@ def main():
         .withColumnRenamed("description", "description_es")
     )
 
-    logger.info("Duplicated SKUs:")
-    catalog.groupBy("sku").agg(count("*").alias("count_sku")).where(
-        col("count_sku") > 1
-    ).show()
+    logger.info("Duplicated event ids:")
+    duplicated_ids = (
+        catalog.groupBy("event_id")
+        .agg(count("*").alias("count_ids"))
+        .where(col("count_ids") > 1)
+    )
+    duplicated_ids.show()
+    logger.info(f"Num of duplicated event ids: {duplicated_ids.count()}")
 
     logger.info("Finished reading Fever catalog")
 
@@ -254,7 +258,7 @@ def main():
 
     logger.info("No matches for cities in catalog:")
     no_match = spain_catalog_city_ids.where(col("city_id").isNull()).select(
-        "sku", "city", "city_name", "plan_name"
+        "event_id", "city", "city_name", "plan_name_es"
     )
     no_match.show(100)
     no_match.count()
@@ -283,7 +287,7 @@ def main():
         )
         .select(*catalog_cols, explode(col("subcategory")).alias("subcategory"))
         .join(subcategories_map, col("subcategory") == col("fever_subcategory"), "left")
-        .groupBy("sku")
+        .groupBy("event_id")
         .agg(
             collect_set(col("subcategory")).alias("subcategories"),
             collect_set(col("sityex_subcategory")).alias("sityex_subcategories"),
@@ -299,13 +303,13 @@ def main():
     )
 
     catalog_with_sityex_subcategories = (
-        spain_catalog_city_ids.withColumnRenamed("sku", "sku_org")
+        spain_catalog_city_ids.withColumnRenamed("event_id", "event_id_org")
         .join(
             sityex_subcategories,
-            col("sku_org") == col("sku"),
+            col("event_id_org") == col("event_id"),
             "left",
         )
-        .drop("sku_org", "subcategory")
+        .drop("event_id_org", "subcategory")
     )
 
     logger.info("Adding new lines to descriptions...")
@@ -320,7 +324,7 @@ def main():
 
     catalog_with_partner = catalog_with_formatted_descs.withColumn(
         "partner", lit("fever")
-    ).withColumn("sku", concat(lit("f"), col("sku")))
+    ).withColumn("event_id", concat(lit("f"), col("event_id")))
 
     logger.info("Added partner field")
 
@@ -349,11 +353,9 @@ def main():
 
     if all_translations_present:
         all_translations = spark.read.parquet(ALL_TRANSLATIONS_PATH)
-
-    if all_translations_present:
         events_to_translate = catalog_with_partner.join(
             all_translations,
-            catalog_with_partner.sku == all_translations.sku,
+            catalog_with_partner.event_id == all_translations.event_id,
             "left_anti",
         )
     else:
@@ -364,44 +366,82 @@ def main():
     logger.info(f"Num of events to translate: {num_events_to_translate}")
 
     if num_events_to_translate != 0:
-        logger.info("Writing description column into separate file for translation...")
+        logger.info(
+            "Writing plan_name and description column into separate file for translation..."
+        )
         TRANSLATION_INPUT_BASE = (
             f"silver/partners/fever/translation/daily/{PROCESSED_DATE_FEVER}/input"
         )
         for _, row in events_to_translate.toPandas().iterrows():
             s3_client.put_object(
                 Bucket=DATA_BUCKET_NAME,
-                Key=f"{TRANSLATION_INPUT_BASE}/{row['sku']}",
+                Key=f"{TRANSLATION_INPUT_BASE}/plan_name/{row['event_id']}",
+                Body=row["plan_name_es"],
+            )
+
+            s3_client.put_object(
+                Bucket=DATA_BUCKET_NAME,
+                Key=f"{TRANSLATION_INPUT_BASE}/description/{row['event_id']}",
                 Body=row["description_es"],
             )
 
         logger.info(
-            "Finished writing description column into separate file for translation"
+            "Finished writing plan_name and description column into separate file for translation"
         )
 
         logger.info("Waiting for translation to finish...")
 
         TRANS_OUT_KEY = (
-            f"silver/partners/fever/translation/daily/{PROCESSED_DATE_FEVER}/output/"
+            f"silver/partners/fever/translation/daily/{PROCESSED_DATE_FEVER}/output"
         )
         translate_client = boto3.client("translate", region_name="eu-west-1")
-        job_id = start_translation_job(
+
+        job_id_plan_name = start_translation_job(
             translate_client,
-            f"s3://{DATA_BUCKET_NAME}/{TRANSLATION_INPUT_BASE}",
-            f"s3://{DATA_BUCKET_NAME}/{TRANS_OUT_KEY}",
+            f"s3://{DATA_BUCKET_NAME}/{TRANSLATION_INPUT_BASE}/plan_name/",
+            f"s3://{DATA_BUCKET_NAME}/{TRANS_OUT_KEY}/plan_name/",
         )
-        check_job_status(translate_client, job_id)
+
+        job_id_description = start_translation_job(
+            translate_client,
+            f"s3://{DATA_BUCKET_NAME}/{TRANSLATION_INPUT_BASE}/description/",
+            f"s3://{DATA_BUCKET_NAME}/{TRANS_OUT_KEY}/description/",
+        )
+
+        check_job_status(translate_client, job_id_plan_name)
+        check_job_status(translate_client, job_id_description)
 
         sc = spark.sparkContext
-        catalog_path = f"s3a://{DATA_BUCKET_NAME}/{TRANS_OUT_KEY}/744516196303-TranslateText-{job_id}/"
-        rdd = sc.wholeTextFiles(catalog_path)
 
-        output_translation = rdd.toDF(["file_name", "description_en"])
+        plan_name_trans_path = f"s3a://{DATA_BUCKET_NAME}/{TRANS_OUT_KEY}/plan_name/744516196303-TranslateText-{job_id_plan_name}/"
+        plan_name_whole_texts = sc.wholeTextFiles(plan_name_trans_path)
+
+        desc_trans_path = f"s3a://{DATA_BUCKET_NAME}/{TRANS_OUT_KEY}/description/744516196303-TranslateText-{job_id_description}/"
+        desciption_whole_texts = sc.wholeTextFiles(desc_trans_path)
+
         file_name_pattern = "en\\.(.*)"
-        output_translation = output_translation.withColumn(
-            "sku", regexp_extract(col("file_name"), file_name_pattern, 1)
-        ).select("sku", "description_en")
-        output_translation.show(10, False)
+        plan_name_trans = (
+            plan_name_whole_texts.toDF(["file_name", "plan_name_en"])
+            .withColumn(
+                "event_id", regexp_extract(col("file_name"), file_name_pattern, 1)
+            )
+            .drop("file_name")
+        )
+        description_trans = (
+            desciption_whole_texts.toDF(["file_name", "description_en"])
+            .withColumn(
+                "event_id", regexp_extract(col("file_name"), file_name_pattern, 1)
+            )
+            .drop("file_name")
+        )
+
+        output_translations = plan_name_trans.join(
+            description_trans,
+            plan_name_trans.event_id == description_trans.event_id,
+            "inner",
+        ).drop(description_trans.event_id)
+
+        output_translations.show(10, False)
 
         logger.info("Translation finished")
 
@@ -409,11 +449,15 @@ def main():
         logger.info("Skipping translation as there are no new events to translate")
 
     if all_translations_present and num_events_to_translate != 0:
-        new_all_translations = all_translations.union(output_translation)
+        new_all_translations = all_translations.select(
+            "event_id", "plan_name_en", "description_en"
+        ).union(
+            output_translations.select("event_id", "plan_name_en", "description_en")
+        )
     elif all_translations_present and num_events_to_translate == 0:
         new_all_translations = all_translations
     else:
-        new_all_translations = output_translation
+        new_all_translations = output_translations
 
     logger.info("Writing backup...")
 
@@ -438,17 +482,23 @@ def main():
 
     final_catalog = catalog_with_partner.join(
         new_all_translations,
-        catalog_with_partner.sku == new_all_translations.sku,
+        catalog_with_partner.event_id == new_all_translations.event_id,
         "left",
     )
-    final_catalog = final_catalog.drop(new_all_translations.sku)
+    final_catalog = final_catalog.drop(new_all_translations.event_id)
 
     logger.info("Joined translations and catalog")
 
     (
         final_catalog.coalesce(1)
         .write.mode("overwrite")
-        .options(header="True", delimiter=",", quote='"', escape='"')
+        .options(
+            header="True",
+            delimiter=",",  # fmt: off
+            quote='"',
+            escape='"',
+            # fmt: on
+        )
         .csv(
             f"s3a://{DATA_BUCKET_NAME}{TESTING_PREFIX}/silver/partners/fever/catalog/{PROCESSED_DATE_FEVER}/"
         )
