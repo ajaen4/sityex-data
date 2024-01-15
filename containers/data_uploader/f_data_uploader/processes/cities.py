@@ -20,15 +20,14 @@ def upload_cities_to_firestore():
         remove_diacritics(row["cities_to_show"]) for row in cities_to_show
     ]
 
-    cities_whatsapp_links = "maps/whatsapp_links.csv"
-    cities_whatsapp_links = s3_client.read_dics(
-        cfg.DATA_BUCKET_NAME, cities_whatsapp_links
+    cities_community_links = "maps/community_links.csv"
+    cities_community_links = s3_client.read_dics(
+        cfg.DATA_BUCKET_NAME, cities_community_links
     )
-    cities_ids_whatsapp_links = dict()
-    for city_whatsapp_link in cities_whatsapp_links:
-        cities_ids_whatsapp_links[city_whatsapp_link["city_id"]] = city_whatsapp_link[
-            "whatsapp_link"
-        ]
+    cities_ids_community_links = dict()
+    for city_community_link in cities_community_links:
+        city_id = city_community_link.pop("city_id")
+        cities_ids_community_links[city_id] = city_community_link
 
     collection_ref = fire_client.collection("cities")
     cities_index = list()
@@ -45,7 +44,9 @@ def upload_cities_to_firestore():
             s3_client,
             doc,
         )
-        city_doc["whatsapp_link"] = cities_ids_whatsapp_links.get(city_doc["city_id"])
+        city_doc["community_links"] = cities_ids_community_links.get(
+            city_doc["city_id"]
+        )
         collection_ref.document(city_doc["city_id"]).set(city_doc)
 
         logger.info("Finished upload")

@@ -2,7 +2,7 @@ config:
   aws:region: eu-west-1
   containers_config:
     data_uploader:
-      build_version: 0.0.5 # data_uploader version
+      build_version: 0.0.6 # data_uploader version
       env_variables:
         - name: ENV
           value: dev
