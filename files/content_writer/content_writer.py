@@ -3,36 +3,59 @@ from typing import Union
 from aws_lib.s3 import S3
 from files.file_paths import FilePaths
 
-from files import write_dics, write_lists, create_folder
+from files import write_dics, write_lists, write_json, create_folder
+from files.content_writer.content_type import ContentType
 
 
 class ContentWriter:
     def __init__(self, s3_client: S3):
         self.s3_client = s3_client
 
-    def write_content(self, output: list[Union[dict, list]], file_paths: FilePaths):
-        local_path = self._write_local_content(file_paths, output)
+    def write_content(
+        self,
+        output: list[Union[dict, list]],
+        file_paths: FilePaths,
+        content_type: ContentType = None,
+    ):
+        local_path = self._write_local_content(file_paths, output, content_type)
         self._write_s3_content(file_paths, local_path)
 
     def _write_local_content(
-        self, file_paths: FilePaths, output: list[Union[dict, list]]
+        self,
+        file_paths: FilePaths,
+        output: list[Union[dict, list]],
+        content_type: ContentType,
     ) -> str:
         LOCAL_PATH = f"{file_paths.local_prefix}{file_paths.file_name}"
         create_folder(file_paths.local_prefix)
 
-        if isinstance(output, list):
-            write_lists(
-                LOCAL_PATH,
-                output,
-            )
+        dics_output = content_type == ContentType.LIST_DICS or (
+            content_type is None and isinstance(output, dict)
+        )
+        lists_output = content_type == ContentType.LIST_LISTS or (
+            content_type is None and isinstance(output, list)
+        )
+        json_output = content_type == ContentType.JSON
 
-        if isinstance(output, dict):
+        if dics_output:
             write_dics(
                 LOCAL_PATH,
                 output,
             )
 
-        if not isinstance(output, list) or isinstance(output, dict):
+        if lists_output:
+            write_lists(
+                LOCAL_PATH,
+                output,
+            )
+
+        if json_output:
+            write_json(
+                LOCAL_PATH,
+                output,
+            )
+
+        if not dics_output and not lists_output and not json_output:
             raise TypeError(
                 f"Output type {type(output)} is not supported, must be list or dict"
             )
