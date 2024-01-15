@@ -4,8 +4,8 @@ with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
 setup(
-    name="fever_downloader",
-    version="0.0.4",
+    name="gcp_lib",
+    version="0.1",
     packages=find_packages(),
     install_requires=requirements,
 )

@@ -5,34 +5,30 @@ from polars import col
 from google.cloud import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 
-from parser.strings import remove_diacritics
-
 from f_partner_uploader.logger import logger
 import f_partner_uploader.config as cfg
 from f_partner_uploader.services import fire_client, s3_client
-from .common import get_file_path
 
 
 def upload_events(partner: str, events_data_dir: str):
     cities_file_dir = f"silver/cities/geographical/all_cities/{cfg.FORMATTED_DATE}/"
-    cities_file_path = get_file_path(s3_client, cities_file_dir)
+    cities_file_path = s3_client.list_files(
+        cfg.DATA_BUCKET_NAME, cities_file_dir, suffix=".csv"
+    )[0]
     cities_info = s3_client.read_dics(cfg.DATA_BUCKET_NAME, cities_file_path)
 
-    events_data_path = get_file_path(s3_client, events_data_dir)
+    events_data_path = s3_client.list_files(
+        cfg.DATA_BUCKET_NAME, events_data_dir, suffix=".csv"
+    )[0]
     events_data = s3_client.read_dics(cfg.DATA_BUCKET_NAME, events_data_path)
 
     cities_to_show = "maps/cities_to_show.csv"
     cities_to_show = s3_client.read_dics(cfg.DATA_BUCKET_NAME, cities_to_show)
-    cities_to_show = [
-        remove_diacritics(row["cities_to_show"]) for row in cities_to_show
-    ]
+    city_ids_to_show = [row["city_id"] for row in cities_to_show]
 
     collection_ref = fire_client.collection("cities")
     for index, doc in enumerate(cities_info):
-        if (
-            doc["country_3_code"] != "ESP"
-            or remove_diacritics(doc["name"]) not in cities_to_show
-        ):
+        if doc["country_3_code"] != "ESP" or doc["geonameid"] not in city_ids_to_show:
             continue
 
         events_city_data = pl.DataFrame(events_data).filter(

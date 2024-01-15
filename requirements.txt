@@ -2,7 +2,7 @@
 -e containers/api_extractor/
 -e containers/data_uploader/
 -e containers/partner_uploader/
--e containers/fever_downloader/
+-e containers/partner_downloader/
 -e parser/
 -e pulumi/
 -e files/
@@ -10,3 +10,4 @@
 -e local_scripts/
 -e .
 pre-commit==3.4.0
+mypy==1.8.0

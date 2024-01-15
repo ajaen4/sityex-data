@@ -4,7 +4,7 @@ LABEL maintainer="SityEx"
 COPY parser/ ./parser/
 COPY files/ ./files/
 COPY aws_lib/ ./aws_lib/
-COPY containers/fever_downloader/ ./
+COPY containers/partner_downloader/ ./
 
 RUN pip install -r parser/requirements.txt
 RUN pip install -r files/requirements.txt
