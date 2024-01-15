@@ -10,3 +10,4 @@
 -e local_scripts/
 -e .
 pre-commit==3.4.0
+mypy==1.8.0
