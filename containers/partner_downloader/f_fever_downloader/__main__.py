@@ -4,9 +4,9 @@ from files.content_writer import ContentWriter
 from files.file_paths import FilePaths
 from aws_lib.s3 import S3
 
-from f_fever_downloader.services import g_drive_service
-import f_fever_downloader.config as cfg
-from f_fever_downloader.logger import logger
+from f_partner_downloader.services import g_drive_service
+import f_partner_downloader.config as cfg
+from f_partner_downloader.logger import logger
 
 
 def fetch_gsheets_data(spread_sheet_id):
@@ -25,7 +25,7 @@ def fetch_gsheets_data(spread_sheet_id):
 
 
 def main():
-    logger.info("Starting fever_downloader...")
+    logger.info("Starting partner_downloader...")
 
     s3_client = S3(boto3.Session())
     content_writer = ContentWriter(s3_client)
@@ -46,4 +46,4 @@ def main():
     logger.info(
         f"Data written to {fever_feed_paths.s3_prefix}{fever_feed_paths.file_name}"
     )
-    logger.info("Finished fever_downloader")
+    logger.info("Finished partner_downloader")
