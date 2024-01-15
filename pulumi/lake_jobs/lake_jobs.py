@@ -56,7 +56,12 @@ class LakeJobs:
                             "Action": ["logs:*", "s3:*", "cloudwatch:*", "translate:*"],
                             "Effect": "Allow",
                             "Resource": "*",
-                        }
+                        },
+                        {
+                            "Action": ["iam:PassRole"],
+                            "Effect": "Allow",
+                            "Resource": "arn:aws:iam::744516196303:role/service-role/AmazonTranslateServiceRole-test-DELETE",
+                        },
                     ],
                 }
             ),
