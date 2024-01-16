@@ -29,9 +29,7 @@ def write_lists(path, content: list[dict[str, str]]):
 
 def write_json(path, content: list):
     with open(path, "w") as multi_json_file:
-        for entry in content:
-            json.dump(entry, multi_json_file, indent=2)
-            multi_json_file.write("\n")
+        json.dump(content, multi_json_file, indent=2)
 
 
 def format_dics(content: str):
