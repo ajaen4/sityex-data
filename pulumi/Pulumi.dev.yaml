@@ -49,6 +49,8 @@ config:
       env_variables:
         - name: FEVER_GDRIVE_FILE_ID
           value: 1U8TPpGz0wjM0r33vbxKnkbB9-Vqw6J5wq5CoKqOzSh4
+        - name: HOUSING_ANYWHERE_URL
+          value: https://housinganywhere.com/feeds/Sityex/Sityex.json
   jobs_configs:
     all_cities:
       number_of_workers: 4
