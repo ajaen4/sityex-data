@@ -7,46 +7,15 @@ config:
         - name: ENV
           value: dev
     partner_uploader:
-      build_version: 1.1.0 # partner_uploader version
+      build_version: 1.2.0 # partner_uploader version
       cron_expression: cron(0 5 ? * SUN *)
       env_variables:
         - name: ENV
           value: dev
-    scrapper:
-      build_version: 0.0.1 # scrapper version
-    api_extractor:
-      build_version: 0.0.2 # api_extractor version
-      env_variables:
-        - name: MIN_POPULATION
-          value: "50000"
-        - name: GEO_DB_REQUEST_LIMIT
-          value: "10"
-        - name: WEATHER_HOURLY_METRICS
-          value: "cloudcover,relativehumidity_2m"
-        - name: WEATHER_DAILY_METRICS
-          value: "temperature_2m_mean,sunrise,sunset,precipitation_hours"
-        - name: AIR_QUAL_HOURLY_METRICS
-          value: european_aqi
-        - name: WEATHER_TIME_WINDOW_START
-          value: "2022-01-01"
-        - name: METRICS_TIME_WINDOW_END
-          value: "2022-12-31"
-        - name: AIR_QUAL_WINDOW_START
-          value: "2022-10-01"
-        - name: AIR_QUAL_WINDOW_END
-          value: "2023-09-30"
-        - name: RUN_GEODB
-          value: "False"
-        - name: RUN_COUNT_CITIES
-          value: "False"
-        - name: RUN_IMF
-          value: "False"
-        - name: RUN_OPEN_METEO
-          value: "False"
     partner_downloader:
       build_version: 0.1.0 # partner_downloader version
-      cpu: 256
-      memory: 1024
+      cpu: 512
+      memory: 4096
       cron_expression: cron(0 3 * * ? *)
       env_variables:
         - name: FEVER_GDRIVE_FILE_ID
