@@ -44,7 +44,7 @@ config:
         - name: RUN_OPEN_METEO
           value: "False"
     partner_downloader:
-      build_version: 0.0.4 # partner_downloader version
+      build_version: 0.0.5 # partner_downloader version
       cron_expression: cron(0 3 * * ? *)
       env_variables:
         - name: FEVER_GDRIVE_FILE_ID
