@@ -1,7 +1,5 @@
 import copy
 
-import polars as pl
-from polars import col
 from google.cloud import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 
@@ -45,6 +43,7 @@ def upload_housing(partner: str, housing_data_dir: str):
 
         housing_ref = collection_ref.document(doc["geonameid"]).collection("housing")
         upload_housing_city_data(housing_ref, housing_data, partner)
+        upload_housing_index(housing_ref)
 
 
 def upload_housing_city_data(
@@ -84,3 +83,27 @@ def format_coordinates(doc: dict):
     )
 
     return new_doc
+
+
+def upload_housing_index(housing_ref: firestore.CollectionReference):
+    city_housing_index = dict()
+    listings = list()
+    for doc in housing_ref.stream():
+        if doc.id == "_index":
+            continue
+
+        index_entry = dict()
+        entry = doc.to_dict()
+        housing_id = entry["housing_id"]
+
+        index_entry["housing_id"] = housing_id
+        index_entry["partner"] = entry["partner"]
+        index_entry["coordinates"] = entry["location"]["coordinates"]
+        index_entry["images"] = entry["images"]
+        index_entry["costsFormatted"] = entry["costsFormatted"]
+
+        listings.append(index_entry)
+
+    city_housing_index["listings"] = listings
+
+    housing_ref.document("_index").set(city_housing_index)
