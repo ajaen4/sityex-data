@@ -7,6 +7,8 @@ from pulumi import Config
 class ContainerConfig:
     container_name: str
     build_version: str
+    cpu: int = 256
+    memory: int = 512
     env_variables: list[dict[str, str]] = None
     cron_expression: str = None
 
@@ -45,10 +47,15 @@ class Input:
             cron_expression = (
                 config["cron_expression"] if "cron_expression" in config else None
             )
+            cpu = config["cpu"] if "cpu" in config else 256
+            memory = config["memory"] if "memory" in config else 512
+
             containers_config_fmt.append(
                 ContainerConfig(
                     container_name=name,
                     build_version=config["build_version"],
+                    cpu=cpu,
+                    memory=memory,
                     env_variables=env_variables,
                     cron_expression=cron_expression,
                 )

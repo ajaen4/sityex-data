@@ -16,9 +16,7 @@ def upload_cities_to_firestore():
 
     cities_to_show = "maps/cities_to_show.csv"
     cities_to_show = s3_client.read_dics(cfg.DATA_BUCKET_NAME, cities_to_show)
-    cities_to_show = [
-        remove_diacritics(row["cities_to_show"]) for row in cities_to_show
-    ]
+    cities_to_show = [remove_diacritics(row["city_name"]) for row in cities_to_show]
 
     cities_community_links = "maps/community_links.csv"
     cities_community_links = s3_client.read_dics(
