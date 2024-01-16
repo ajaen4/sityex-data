@@ -44,11 +44,13 @@ config:
         - name: RUN_OPEN_METEO
           value: "False"
     partner_downloader:
-      build_version: 0.0.4 # partner_downloader version
+      build_version: 0.1.0 # partner_downloader version
       cron_expression: cron(0 3 * * ? *)
       env_variables:
         - name: FEVER_GDRIVE_FILE_ID
           value: 1U8TPpGz0wjM0r33vbxKnkbB9-Vqw6J5wq5CoKqOzSh4
+        - name: HOUSING_ANYWHERE_URL
+          value: https://housinganywhere.com/feeds/Sityex/Sityex.json
   jobs_configs:
     all_cities:
       number_of_workers: 4
