@@ -19,10 +19,15 @@ class S3:
         csv_content = s3_obj["Body"].read().decode("utf-8")
         return format_dics(csv_content)
 
-    def read_json(self, bucket_name: str, file_key: str) -> dict:
+    def read_json(self, bucket_name: str, file_key: str) -> list[dict]:
         s3_obj = self.s3_client.get_object(Bucket=bucket_name, Key=file_key)
-        json_content = json.loads(s3_obj["Body"].read().decode("utf-8"))
-        return json_content
+        content = s3_obj["Body"].read().decode("utf-8")
+
+        json_objects = []
+        for line in content.splitlines():
+            json_objects.append(json.loads(line))
+
+        return json_objects
 
     def list_files(
         self, bucket_name: str, prefix: str, suffix: str = None
