@@ -45,6 +45,8 @@ config:
           value: "False"
     partner_downloader:
       build_version: 0.1.0 # partner_downloader version
+      cpu: 256
+      memory: 1024
       cron_expression: cron(0 3 * * ? *)
       env_variables:
         - name: FEVER_GDRIVE_FILE_ID
@@ -94,3 +96,8 @@ config:
         --PROCESSED_DATE_CITIES: 11-10-2023
         --TESTING_PREFIX: "None"
         --TESTING_CITY_ID: "None"
+    housing_anywhere:
+      number_of_workers: 2
+      cron_expression: cron(0 4 * * ? *)
+      args:
+        --TESTING_PREFIX: "None"

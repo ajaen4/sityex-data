@@ -94,8 +94,8 @@ class ContainerTasks:
                     {
                         "name": container_name,
                         "image": args["image_uri"],
-                        "memory": 512,
-                        "cpu": 256,
+                        "memory": container_config.memory,
+                        "cpu": container_config.cpu,
                         "essential": True,
                         "portMappings": [{"containerPort": 80, "hostPort": 80}],
                         "logConfiguration": {
@@ -121,8 +121,8 @@ class ContainerTasks:
         task_def = ecs.TaskDefinition(
             f"{container_name}-task-def",
             family=f"{container_name}-task-def",
-            cpu="256",
-            memory="512",
+            cpu=str(container_config.cpu),
+            memory=str(container_config.memory),
             network_mode="awsvpc",
             requires_compatibilities=["FARGATE"],
             execution_role_arn=self.task_exec_role.arn,
