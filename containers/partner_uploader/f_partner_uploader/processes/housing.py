@@ -26,9 +26,19 @@ def upload_housing(partner: str, housing_data_dir: str):
         if doc["country_3_code"] != "ESP" or doc["geonameid"] not in city_ids_to_show:
             continue
 
-        housing_data_path = s3_client.list_files(
-            cfg.DATA_BUCKET_NAME, housing_data_dir, suffix=".json"
-        )[0]
+        CITY_HOUSING_DIR = f"{housing_data_dir}city_id={doc['geonameid']}"
+        housing_data_paths = s3_client.list_files(
+            cfg.DATA_BUCKET_NAME, CITY_HOUSING_DIR, suffix=".json"
+        )
+
+        if len(housing_data_paths) == 0:
+            logger.info(
+                f"No housing data for city_id: {doc['geonameid']}, city_name: {doc['name']}"
+            )
+            continue
+
+        housing_data_path = housing_data_paths[0]
+
         housing_data = s3_client.read_json(cfg.DATA_BUCKET_NAME, housing_data_path)
 
         logger.info(f'Uploading doc number {index}, city_name: {doc["name"]}...')
@@ -38,36 +48,39 @@ def upload_housing(partner: str, housing_data_dir: str):
 
 
 def upload_housing_city_data(
-    housing_ref: firestore.CollectionReference, housing_data: pl.DataFrame, partner: str
+    housing_ref: firestore.CollectionReference, housing_data: list[dict], partner: str
 ):
-    event_ids = [
+    housing_ids_db = [
         doc.id
         for doc in housing_ref.where(
             filter=FieldFilter("partner", "==", partner)
         ).stream()
     ]
 
-    for event_id in event_ids:
-        if event_id not in housing_data["event_id"]:
-            logger.info(f"Deleting event_id: {event_id}")
-            housing_ref.document(event_id).delete()
+    housing_ids_input = [doc["housing_id"] for doc in housing_data]
 
-    for doc in housing_data.to_dicts():
+    for housing_id in housing_ids_db:
+        if housing_id not in housing_ids_input:
+            logger.info(f"Deleting housing_id: {housing_id}")
+            housing_ref.document(housing_id).delete()
+
+    for doc in housing_data:
         new_doc = format_coordinates(doc)
 
-        if doc["event_id"] in event_ids:
-            housing_ref.document(doc["event_id"]).set(new_doc, merge=True)
+        if doc["housing_id"] in housing_ids_db:
+            housing_ref.document(doc["housing_id"]).set(new_doc, merge=True)
         else:
-            housing_ref.document(doc["event_id"]).set(new_doc)
+            housing_ref.document(doc["housing_id"]).set(new_doc)
 
 
 def format_coordinates(doc: dict):
     new_doc = copy.deepcopy(doc)
     new_doc["coordinates"] = dict()
-    new_doc["coordinates"]["latitude"] = float(doc["latitude"])
-    new_doc["coordinates"]["longitude"] = float(doc["longitude"])
-
-    new_doc.pop("latitude")
-    new_doc.pop("longitude")
+    new_doc["location"]["coordinates"]["latitude"] = float(
+        doc["location"]["coordinates"]["latitude"]
+    )
+    new_doc["location"]["coordinates"]["longitude"] = float(
+        doc["location"]["coordinates"]["longitude"]
+    )
 
     return new_doc

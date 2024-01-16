@@ -10,6 +10,8 @@ from logger import logger
 
 from pyspark.sql.functions import (
     col,
+    lit,
+    concat,
 )
 from datetime import datetime
 
@@ -87,10 +89,21 @@ def main():
 
     logger.info("Finished Filtering listings")
 
+    logger.info("Adding partner field...")
+
+    listings_partner = (
+        listings_postal_code.withColumn("partner", lit("housing_anywhere"))
+        .withColumn("housing_id", concat(lit("ha"), col("id")))
+        .drop("id", "__utId__")
+    )
+
+    logger.info("Added partner field")
+
     logger.info("Writing listings...")
 
     (
-        listings_postal_code.write.mode("overwrite")
+        listings_partner.coalesce(1)
+        .write.mode("overwrite")
         .option("multiLine", True)
         .partitionBy("city_id")
         .json(
