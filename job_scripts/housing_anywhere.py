@@ -10,6 +10,8 @@ from logger import logger
 
 from pyspark.sql.functions import (
     col,
+    lit,
+    concat,
 )
 from datetime import datetime
 
@@ -59,17 +61,51 @@ def main():
 
     logger.info(f"Number of listings: {listings_count}")
 
+    logger.info("Reading cities to show...")
+
+    cities_to_show = (
+        spark.read.options(header="True", delimiter=",")
+        .csv(f"s3a://{DATA_BUCKET_NAME}/maps/cities_to_show.csv")
+        .select("postal_code", "city_id")
+    )
+
+    logger.info("Finished reading cities to show")
+
     logger.info("Filtering listings...")
 
     spanish_listings = listings.where(col("location.countryCode") == "ES")
     num_spanish_list = spanish_listings.count()
     logger.info(f"Number of Spanish listings: {num_spanish_list}")
 
+    listings_postal_code = (
+        spanish_listings.join(
+            cities_to_show,
+            spanish_listings["location.postalCode"] == cities_to_show["postal_code"],
+            "left",
+        )
+        .where(col("postal_code").isNotNull())
+        .drop("postal_code")
+    )
+
+    logger.info("Finished Filtering listings")
+
+    logger.info("Adding partner field...")
+
+    listings_partner = (
+        listings_postal_code.withColumn("partner", lit("housing_anywhere"))
+        .withColumn("housing_id", concat(lit("ha"), col("id")))
+        .drop("id", "__utId__")
+    )
+
+    logger.info("Added partner field")
+
     logger.info("Writing listings...")
 
     (
-        spanish_listings.write.mode("overwrite")
+        listings_partner.coalesce(1)
+        .write.mode("overwrite")
         .option("multiLine", True)
+        .partitionBy("city_id")
         .json(
             f"s3a://{DATA_BUCKET_NAME}{TESTING_PREFIX}/silver/partners/housing_anywhere/{PROCESSED_DATE_HOUSING}/"
         )
