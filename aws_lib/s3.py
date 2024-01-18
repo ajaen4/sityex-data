@@ -3,7 +3,7 @@ from json import JSONDecodeError
 from boto3.session import Session
 from typing import Union
 
-from logger import logger
+from .logger import logger
 from files import format_dics
 
 
