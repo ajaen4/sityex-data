@@ -66,25 +66,28 @@ def main():
     cities_to_show = (
         spark.read.options(header="True", delimiter=",")
         .csv(f"s3a://{DATA_BUCKET_NAME}/maps/cities_to_show.csv")
-        .select("postal_code", "city_id")
+        .select("two_digit_postal_code", "city_id")
     )
 
     logger.info("Finished reading cities to show")
 
     logger.info("Filtering listings...")
 
-    spanish_listings = listings.where(col("location.countryCode") == "ES")
+    spanish_listings = listings.where(col("location.countryCode") == "ES").withColumn(
+        "two_digit_postal_code_listing", col("location.postalCode").substr(1, 2)
+    )
     num_spanish_list = spanish_listings.count()
     logger.info(f"Number of Spanish listings: {num_spanish_list}")
 
     listings_postal_code = (
         spanish_listings.join(
             cities_to_show,
-            spanish_listings["location.postalCode"] == cities_to_show["postal_code"],
+            spanish_listings["two_digit_postal_code_listing"]
+            == cities_to_show["two_digit_postal_code"],
             "left",
         )
-        .where(col("postal_code").isNotNull())
-        .drop("postal_code")
+        .where(col("two_digit_postal_code").isNotNull())
+        .drop("two_digit_postal_code_listing", "two_digit_postal_code")
     )
 
     logger.info("Finished Filtering listings")
@@ -102,8 +105,7 @@ def main():
     logger.info("Writing listings...")
 
     (
-        listings_partner.coalesce(1)
-        .write.mode("overwrite")
+        listings_partner.write.mode("overwrite")
         .option("multiLine", True)
         .partitionBy("city_id")
         .json(
