@@ -35,11 +35,11 @@ def upload_housing(partner: str, housing_data_dir: str):
             )
             continue
 
+        logger.info(f'Uploading doc number {index}, city_name: {doc["name"]}...')
+
         housing_data_path = housing_data_paths[0]
 
         housing_data = s3_client.read_json(cfg.DATA_BUCKET_NAME, housing_data_path)
-
-        logger.info(f'Uploading doc number {index}, city_name: {doc["name"]}...')
 
         housing_ref = collection_ref.document(doc["geonameid"]).collection("housing")
         upload_housing_city_data(housing_ref, housing_data, partner)
@@ -74,7 +74,6 @@ def upload_housing_city_data(
 
 def format_coordinates(doc: dict):
     new_doc = copy.deepcopy(doc)
-    new_doc["coordinates"] = dict()
     new_doc["location"]["coordinates"]["latitude"] = float(
         doc["location"]["coordinates"]["latitude"]
     )
@@ -99,7 +98,6 @@ def upload_housing_index(housing_ref: firestore.CollectionReference):
         index_entry["housing_id"] = housing_id
         index_entry["partner"] = entry["partner"]
         index_entry["coordinates"] = entry["location"]["coordinates"]
-        index_entry["images"] = entry["images"]
         index_entry["costsFormatted"] = entry["costsFormatted"]
 
         listings.append(index_entry)

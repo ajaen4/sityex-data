@@ -1,7 +1,9 @@
 import json
+from json import JSONDecodeError
 from boto3.session import Session
 from typing import Union
 
+from .logger import logger
 from files import format_dics
 
 
@@ -25,7 +27,12 @@ class S3:
 
         json_objects = []
         for line in content.splitlines():
-            json_objects.append(json.loads(line))
+            try:
+                json_objects.append(json.loads(line))
+            except JSONDecodeError as e:
+                logger.error(f"Error reading line: {line}")
+                logger.error(e)
+                continue
 
         return json_objects
 
