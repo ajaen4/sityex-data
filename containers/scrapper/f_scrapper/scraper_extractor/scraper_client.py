@@ -17,11 +17,11 @@ class ScraperClient:
         self.headers = headers
 
     def scrape_content(
-        self, scrape_config: ScrapeConfig, override_url_path: str = None
+        self, scrape_cfg: ScrapeConfig, override_url_path: str = None
     ) -> list:
-        scrape_elems = scrape_config.scrape_elems
+        scrape_elems = scrape_cfg.scrape_elems
 
-        url_path = override_url_path if override_url_path else scrape_config.url_path
+        url_path = override_url_path if override_url_path else scrape_cfg.url_path
 
         content = self._get_content(url_path)
         soup = BeautifulSoup(content, "html.parser")

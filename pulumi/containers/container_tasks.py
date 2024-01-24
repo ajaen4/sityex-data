@@ -17,10 +17,9 @@ class ContainerTasks:
     ):
         self.baseline_stack_ref = baseline_stack_ref
         self.input = input
+        self.resources = self.create_resources()
 
-        self.create_resources()
-
-    def create_resources(self):
+    def create_resources(self) -> dict[dict]:
         stack_name = pulumi.get_stack()
 
         self.task_exec_role = iam.Role(
@@ -61,13 +60,16 @@ class ContainerTasks:
             policy_arn=task_exec_policy.arn,
         )
 
-        for container_config in self.input.containers_config:
-            self._create_task_def(container_config)
+        resources = dict()
+        for container_cfg in self.input.containers_cfg:
+            resources.update(self._create_task_def(container_cfg))
 
-    def _create_task_def(self, container_config: ContainerConfig):
-        container_name = container_config.container_name
-        version = container_config.build_version
-        env_variables = container_config.env_variables
+        return resources
+
+    def _create_task_def(self, container_cfg: ContainerConfig) -> dict:
+        container_name = container_cfg.container_name
+        version = container_cfg.build_version
+        env_variables = container_cfg.env_variables
         stack_name = pulumi.get_stack()
 
         cluster = ecs.Cluster(
@@ -94,8 +96,8 @@ class ContainerTasks:
                     {
                         "name": container_name,
                         "image": args["image_uri"],
-                        "memory": container_config.memory,
-                        "cpu": container_config.cpu,
+                        "memory": container_cfg.memory,
+                        "cpu": container_cfg.cpu,
                         "essential": True,
                         "portMappings": [{"containerPort": 80, "hostPort": 80}],
                         "logConfiguration": {
@@ -121,8 +123,8 @@ class ContainerTasks:
         task_def = ecs.TaskDefinition(
             f"{container_name}-task-def",
             family=f"{container_name}-task-def",
-            cpu=str(container_config.cpu),
-            memory=str(container_config.memory),
+            cpu=str(container_cfg.cpu),
+            memory=str(container_cfg.memory),
             network_mode="awsvpc",
             requires_compatibilities=["FARGATE"],
             execution_role_arn=self.task_exec_role.arn,
@@ -133,19 +135,23 @@ class ContainerTasks:
             },
         )
 
-        if container_config.cron_expression:
+        if container_cfg.cron_expression:
             self._attach_event_rule(
-                container_config, cluster, task_def, container_config.cron_expression
+                container_cfg, cluster, task_def, container_cfg.cron_expression
             )
+
+        return {
+            container_name: {"type": "ecs", "task_def": task_def, "cluster": cluster}
+        }
 
     def _attach_event_rule(
         self,
-        container_config: ContainerConfig,
+        container_cfg: ContainerConfig,
         cluster: ecs.Cluster,
         task_def: ecs.TaskDefinition,
         cron: str = "cron(00 12 3 * ? 1997)",
     ):
-        container_name = container_config.container_name
+        container_name = container_cfg.container_name
         stack_name = pulumi.get_stack()
 
         event_role = iam.Role(
@@ -199,3 +205,6 @@ class ContainerTasks:
                 },
             ),
         )
+
+    def get_resources(self) -> dict[dict]:
+        return self.resources

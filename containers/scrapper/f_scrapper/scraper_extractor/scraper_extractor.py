@@ -13,14 +13,14 @@ class ScraperExtractor:
     ):
         self.scrape_client = ScraperClient(base_url, headers)
 
-    def get_content(self, scrape_config: Enum, extra_args: dict[str, str] = None):
+    def get_content(self, scrape_cfg: Enum, extra_args: dict[str, str] = None):
         if extra_args:
             logger.info(f"Extra args: {extra_args}")
 
         logger.info("Starting scrapping...")
 
-        url_path = ScraperExtractor.get_url_path(scrape_config.url_path, extra_args)
-        scraped_content = self.scrape_client.scrape_content(scrape_config, url_path)
+        url_path = ScraperExtractor.get_url_path(scrape_cfg.url_path, extra_args)
+        scraped_content = self.scrape_client.scrape_content(scrape_cfg, url_path)
 
         logger.info("Finished scrapping")
 

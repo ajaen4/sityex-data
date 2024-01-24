@@ -1,6 +1,6 @@
 config:
   aws:region: eu-west-1
-  containers_config:
+  containers:
     data_uploader:
       build_version: 0.1.2 # data_uploader version
       env_variables:
@@ -22,7 +22,7 @@ config:
           value: 1U8TPpGz0wjM0r33vbxKnkbB9-Vqw6J5wq5CoKqOzSh4
         - name: HOUSING_ANYWHERE_URL
           value: https://housinganywhere.com/feeds/Sityex/Sityex.json
-  jobs_configs:
+  jobs:
     all_cities:
       number_of_workers: 4
       args:
@@ -70,3 +70,29 @@ config:
       cron_expression: cron(0 4 * * ? *)
       args:
         --TESTING_PREFIX: "None"
+  orchestrators:
+    test_orchestrator:
+      type: STANDARD
+      states:
+        - name: Download partner data
+          type: Task
+          resource: partner_downloader
+        - name: Process partner data
+          type: Parallel
+          branches:
+            - name: Fever branch
+              states:
+                - name: Fever job
+                  type: Task
+                  resource: fever
+                  is_end: true
+            - name: HousingAnywhere branch
+              states:
+                - name: HousingAnywhere job
+                  type: Task
+                  resource: housing_anywhere
+                  is_end: true
+        - name: Upload data
+          type: Task
+          resource: partner_uploader
+          is_end: true

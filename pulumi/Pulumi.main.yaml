@@ -1,6 +1,6 @@
 config:
   aws:region: eu-west-1
-  containers_config:
+  containers:
     data_uploader:
       build_version: 0.1.2 # data_uploader version
       env_variables:

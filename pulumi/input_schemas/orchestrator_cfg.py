@@ -1,0 +1,40 @@
+from dataclasses import dataclass, field
+from typing import List, Dict, Optional
+
+
+@dataclass
+class OrchestratorState:
+    name: str
+    type: str
+    resource: str
+    is_end: bool = False
+    branches: Optional[List["OrchestratorBranch"]] = field(default_factory=list)
+
+    def __init__(self, state: dict):
+        self.name = state["name"]
+        self.type = state["type"]
+        self.resource = state["resource"] if "resource" in state else None
+        self.is_end = state["is_end"] if "is_end" in state else False
+
+        self.branches = (
+            [OrchestratorBranch(**s) for s in state["branches"]]
+            if "branches" in state
+            else None
+        )
+
+
+@dataclass
+class OrchestratorBranch:
+    name: str
+    states: List["OrchestratorState"]
+
+    def __init__(self, name: str, states: dict):
+        self.name = name
+        self.states = [OrchestratorState(s) for s in states]
+
+
+@dataclass
+class OrchestratorConfig:
+    orchestrator_name: str
+    type: str
+    states: list[OrchestratorState]
