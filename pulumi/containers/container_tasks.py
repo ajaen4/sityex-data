@@ -149,7 +149,7 @@ class ContainerTasks:
         container_cfg: ContainerConfig,
         cluster: ecs.Cluster,
         task_def: ecs.TaskDefinition,
-        cron: str = "cron(00 12 3 * ? 1997)",
+        cron: str,
     ):
         container_name = container_cfg.container_name
         stack_name = pulumi.get_stack()
