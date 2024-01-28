@@ -1,48 +1,35 @@
 from dataclasses import dataclass
 
 from pulumi import Config
-
-
-@dataclass
-class ContainerConfig:
-    container_name: str
-    build_version: str
-    cpu: int = 256
-    memory: int = 512
-    env_variables: list[dict[str, str]] = None
-    cron_expression: str = None
-
-
-@dataclass
-class JobConfig:
-    job_name: str
-    number_of_workers: int
-    args: dict[str, str] = None
-    cron_expression: str = None
-    additional_python_modules: list[str] = None
+from .container_cfg import ContainerConfig
+from .job_cfg import JobConfig
+from .orchestrator_cfg import OrchestratorConfig, OrchestratorState
 
 
 @dataclass
 class Input:
-    containers_config: list[ContainerConfig] = None
-    jobs_configs: list[JobConfig] = None
+    containers_cfg: list[ContainerConfig] = None
+    jobs_cfgs: list[JobConfig] = None
+    orchestrators_cfgs: list[OrchestratorConfig] = None
 
     @classmethod
-    def from_config(cls, iac_config: Config):
-        containers_config_fmt = Input.serialize_containers_config(iac_config)
-        jobs_configs_fmt = Input.serialize_jobs_config(iac_config)
+    def from_cfg(cls, iac_cfg: Config):
+        containers_cfg_fmt = Input.serialize_containers_cfg(iac_cfg)
+        jobs_cfgs_fmt = Input.serialize_jobs_cfg(iac_cfg)
+        orchestrators_cfgs_fmt = Input.serialize_orchest_cfg(iac_cfg)
 
         return cls(
-            containers_config=containers_config_fmt,
-            jobs_configs=jobs_configs_fmt,
+            containers_cfg=containers_cfg_fmt,
+            jobs_cfgs=jobs_cfgs_fmt,
+            orchestrators_cfgs=orchestrators_cfgs_fmt,
         )
 
     @staticmethod
-    def serialize_containers_config(iac_config: Config):
-        containers_config = iac_config.get_object("containers_config", {})
-        containers_config_fmt = list()
+    def serialize_containers_cfg(iac_cfg: Config) -> list[ContainerConfig]:
+        containers_cfg = iac_cfg.get_object("containers", {})
+        containers_cfg_fmt = list()
 
-        for name, config in containers_config.items():
+        for name, config in containers_cfg.items():
             env_variables = config["env_variables"] if "env_variables" in config else []
             cron_expression = (
                 config["cron_expression"] if "cron_expression" in config else None
@@ -50,7 +37,7 @@ class Input:
             cpu = config["cpu"] if "cpu" in config else 256
             memory = config["memory"] if "memory" in config else 512
 
-            containers_config_fmt.append(
+            containers_cfg_fmt.append(
                 ContainerConfig(
                     container_name=name,
                     build_version=config["build_version"],
@@ -61,14 +48,14 @@ class Input:
                 )
             )
 
-        return containers_config_fmt
+        return containers_cfg_fmt
 
     @staticmethod
-    def serialize_jobs_config(iac_config: Config):
-        jobs_configs = iac_config.get_object("jobs_configs", {})
-        jobs_configs_fmt = list()
+    def serialize_jobs_cfg(iac_cfg: Config) -> list[JobConfig]:
+        jobs_cfgs = iac_cfg.get_object("jobs", {})
+        jobs_cfgs_fmt = list()
 
-        for name, config in jobs_configs.items():
+        for name, config in jobs_cfgs.items():
             args = config["args"] if "args" in config else []
             cron_expression = (
                 config["cron_expression"] if "cron_expression" in config else None
@@ -82,7 +69,7 @@ class Input:
                 config["number_of_workers"] if "number_of_workers" in config else 2
             )
 
-            jobs_configs_fmt.append(
+            jobs_cfgs_fmt.append(
                 JobConfig(
                     job_name=name,
                     number_of_workers=number_of_workers,
@@ -92,4 +79,30 @@ class Input:
                 )
             )
 
-        return jobs_configs_fmt
+        return jobs_cfgs_fmt
+
+    @staticmethod
+    def serialize_orchest_cfg(iac_cfg: Config) -> list[OrchestratorConfig]:
+        orchestrator_cfg = iac_cfg.get_object("orchestrators", {})
+        orchestrator_cfg_fmt = list()
+
+        for name, config in orchestrator_cfg.items():
+            type = config["type"]
+            cron_expression = (
+                config["cron_expression"] if "cron_expression" in config else None
+            )
+
+            states = list()
+            for state in config["states"]:
+                states.append(OrchestratorState(state))
+
+            orchestrator_cfg_fmt.append(
+                OrchestratorConfig(
+                    orchestrator_name=name,
+                    type=type,
+                    states=states,
+                    cron_expression=cron_expression,
+                )
+            )
+
+        return orchestrator_cfg_fmt
