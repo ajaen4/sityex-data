@@ -1,6 +1,6 @@
 config:
   aws:region: eu-west-1
-  containers_config:
+  containers:
     data_uploader:
       build_version: 0.1.2 # data_uploader version
       env_variables:
@@ -8,7 +8,6 @@ config:
           value: dev
     partner_uploader:
       build_version: 1.3.3 # partner_uploader version
-      cron_expression: cron(0 5 ? * SUN *)
       env_variables:
         - name: ENV
           value: dev
@@ -16,13 +15,12 @@ config:
       build_version: 0.2.2 # partner_downloader version
       cpu: 512
       memory: 4096
-      cron_expression: cron(0 3 * * ? *)
       env_variables:
         - name: FEVER_GDRIVE_FILE_ID
           value: 1U8TPpGz0wjM0r33vbxKnkbB9-Vqw6J5wq5CoKqOzSh4
         - name: HOUSING_ANYWHERE_URL
           value: https://housinganywhere.com/feeds/Sityex/Sityex.json
-  jobs_configs:
+  jobs:
     all_cities:
       number_of_workers: 4
       args:
@@ -60,13 +58,37 @@ config:
         --TESTING_CITY_ID: "None"
     fever:
       number_of_workers: 2
-      cron_expression: cron(0 4 * * ? *)
       args:
         --PROCESSED_DATE_CITIES: 11-10-2023
         --TESTING_PREFIX: "None"
         --TESTING_CITY_ID: "None"
     housing_anywhere:
       number_of_workers: 2
-      cron_expression: cron(0 4 * * ? *)
       args:
         --TESTING_PREFIX: "None"
+  orchestrators:
+    partner_workflow:
+      type: STANDARD
+      states:
+        - name: Download partner data
+          type: Task
+          resource: partner_downloader
+        - name: Process partner data
+          type: Parallel
+          branches:
+            - name: Fever branch
+              states:
+                - name: Fever job
+                  type: Task
+                  resource: fever
+                  is_end: true
+            - name: HousingAnywhere branch
+              states:
+                - name: HousingAnywhere job
+                  type: Task
+                  resource: housing_anywhere
+                  is_end: true
+        - name: Upload data
+          type: Task
+          resource: partner_uploader
+          is_end: true

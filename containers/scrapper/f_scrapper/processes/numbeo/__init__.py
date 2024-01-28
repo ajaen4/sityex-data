@@ -1,2 +1,2 @@
 from .numbeo import numbeo_process
-from .scrape_config import NumbeoScrapeConfigs
+from .scrape_cfg import NumbeoScrapeConfigs

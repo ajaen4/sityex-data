@@ -11,7 +11,7 @@ class LakeJobs:
         self.baseline_stack_ref = baseline_stack_ref
         self.create_role()
         self.create_common_res()
-        self.create_jobs(input)
+        self.resources = self.create_jobs(input)
 
     def create_common_res(self):
         stack_name = pulumi.get_stack()
@@ -73,14 +73,16 @@ class LakeJobs:
             policy_arn=job_policy.arn,
         )
 
-    def create_jobs(self, input: Input):
-        for job_config in input.jobs_configs:
-            self._create_job(job_config)
+    def create_jobs(self, input: Input) -> dict[dict]:
+        resources = dict()
+        for job_cfg in input.jobs_cfgs:
+            resources.update(self._create_job(job_cfg))
+        return resources
 
-    def _create_job(self, job_config: JobConfig):
+    def _create_job(self, job_cfg: JobConfig) -> dict:
         stack_name = pulumi.get_stack()
 
-        job_name = job_config.job_name
+        job_name = job_cfg.job_name
         job_script = s3.BucketObject(
             f"{job_name}-script",
             bucket=self.baseline_stack_ref.get_output("jobs_bucket_name"),
@@ -94,10 +96,10 @@ class LakeJobs:
             retention_in_days=30,
         )
 
-        if job_config.additional_python_modules:
+        if job_cfg.additional_python_modules:
             add_python_modules = {
                 "--additional-python-modules": ",".join(
-                    job_config.additional_python_modules
+                    job_cfg.additional_python_modules
                 ),
             }
         else:
@@ -119,7 +121,7 @@ class LakeJobs:
                 "--DATA_BUCKET_NAME": args["data_bucket_name"],
                 "--extra-py-files": f's3://{args["jobs_bucket_name"]}/{args["logger_script_key"]}',
                 **add_python_modules,
-                **job_config.args,
+                **job_cfg.args,
             }
         )
 
@@ -129,7 +131,7 @@ class LakeJobs:
                 name=f"{job_name}-{stack_name}",
                 role_arn=self.glue_role.arn,
                 glue_version="4.0",
-                number_of_workers=job_config.number_of_workers,
+                number_of_workers=job_cfg.number_of_workers,
                 worker_type="G.1X",
                 default_arguments=job_arguments,
                 command=glue.JobCommandArgs(
@@ -146,13 +148,18 @@ class LakeJobs:
             ),
         )
 
-        cron_expression = job_config.cron_expression
+        cron_expression = job_cfg.cron_expression
 
         if cron_expression:
             glue.Trigger(
-                f"{job_config.job_name}-trigger",
-                name=f"{job_config.job_name}-trigger-{stack_name}",
+                f"{job_cfg.job_name}-trigger",
+                name=f"{job_cfg.job_name}-trigger-{stack_name}",
                 actions=[glue.TriggerActionArgs(job_name=glue_job.name)],
                 schedule=cron_expression,
                 type="SCHEDULED",
             )
+
+        return {job_name: {"type": "glue_job", "job": glue_job}}
+
+    def get_resources(self) -> dict[dict]:
+        return self.resources

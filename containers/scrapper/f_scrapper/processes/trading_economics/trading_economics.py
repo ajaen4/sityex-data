@@ -7,7 +7,7 @@ from f_scrapper.scraper_extractor import ScraperExtractor
 from f_scrapper.logger import logger
 from f_scrapper.processes.run_scrape import run_scrape
 
-from .scrape_config import TradingEconScrapeConfigs
+from .scrape_cfg import TradingEconScrapeConfigs
 
 
 def trading_econ_process():
@@ -23,16 +23,16 @@ def trading_econ_process():
     s3_client = S3(boto3.Session())
     content_writer = ContentWriter(s3_client)
 
-    country_income_config = TradingEconScrapeConfigs.COUNTRY_INCOME_TAX
-    run_scrape(content_writer, trading_econ_extractor, country_income_config)
+    country_income_cfg = TradingEconScrapeConfigs.COUNTRY_INCOME_TAX
+    run_scrape(content_writer, trading_econ_extractor, country_income_cfg)
 
-    social_security_config = TradingEconScrapeConfigs.COUNTRY_SOCIAL_SECURITY_RATE
-    run_scrape(content_writer, trading_econ_extractor, social_security_config)
+    social_security_cfg = TradingEconScrapeConfigs.COUNTRY_SOCIAL_SECURITY_RATE
+    run_scrape(content_writer, trading_econ_extractor, social_security_cfg)
 
-    sales_tax_config = TradingEconScrapeConfigs.COUNTRY_SALES_TAX_RATE
-    run_scrape(content_writer, trading_econ_extractor, sales_tax_config)
+    sales_tax_cfg = TradingEconScrapeConfigs.COUNTRY_SALES_TAX_RATE
+    run_scrape(content_writer, trading_econ_extractor, sales_tax_cfg)
 
-    job_vacancies_config = TradingEconScrapeConfigs.JOB_VACANCIES
-    run_scrape(content_writer, trading_econ_extractor, job_vacancies_config)
+    job_vacancies_cfg = TradingEconScrapeConfigs.JOB_VACANCIES
+    run_scrape(content_writer, trading_econ_extractor, job_vacancies_cfg)
 
     logger.info("Finished trading economics process")

@@ -25,6 +25,7 @@ class Image:
                 },
                 context="../",
                 dockerfile=f"../containers/{self.name}/Dockerfile",
+                platform="linux/amd64",
             ),
             image_name=self.ecr_repository.repository_url.apply(
                 lambda repository_url: f"{repository_url}:{image_tag}"
