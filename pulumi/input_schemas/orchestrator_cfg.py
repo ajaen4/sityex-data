@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional
+from typing import List, Optional
 
 
 @dataclass
@@ -38,3 +38,4 @@ class OrchestratorConfig:
     orchestrator_name: str
     type: str
     states: list[OrchestratorState]
+    cron_expression: str = None

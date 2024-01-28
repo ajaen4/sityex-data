@@ -88,6 +88,9 @@ class Input:
 
         for name, config in orchestrator_cfg.items():
             type = config["type"]
+            cron_expression = (
+                config["cron_expression"] if "cron_expression" in config else None
+            )
 
             states = list()
             for state in config["states"]:
@@ -98,6 +101,7 @@ class Input:
                     orchestrator_name=name,
                     type=type,
                     states=states,
+                    cron_expression=cron_expression,
                 )
             )
 

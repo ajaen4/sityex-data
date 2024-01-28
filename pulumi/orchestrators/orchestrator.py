@@ -19,7 +19,7 @@ class Orchestrator:
         self.role = role
         self.orchest_cfg = orchest_cfg
         self.orchest_resources = self._get_orchest_resources(all_resources)
-        self.create_state_machine()
+        self._create_state_machine()
 
     def _get_orchest_resources(self, all_resources: dict[dict]):
         orchest_resources = dict()
@@ -36,28 +36,33 @@ class Orchestrator:
 
         return orchest_resources
 
-    def create_state_machine(self):
+    def _create_state_machine(self):
         initial_state = {
             "Comment": f"state Function for {self.orchest_cfg.orchestrator_name}",
         }
 
-        definition = self.create_definition(
+        stack_name = pulumi.get_stack()
+
+        definition = self._create_definition(
             self.orchest_cfg.states, initial_state
         ).apply(lambda definition: json.dumps(definition, default=str))
 
-        StateMachine(
+        self.state_machine = StateMachine(
             self.orchest_cfg.orchestrator_name,
-            name=self.orchest_cfg.orchestrator_name,
+            name=f"{self.orchest_cfg.orchestrator_name}-{stack_name}",
             role_arn=self.role.arn,
             definition=definition,
         )
 
-    def create_definition(
+        if self.orchest_cfg.cron_expression:
+            self._create_cron_trigger()
+
+    def _create_definition(
         self,
         states_cfg: list[OrchestratorState],
         initial_state: dict = dict(),
     ) -> pulumi.Output:
-        states = self.get_states(states_cfg)
+        states = self._get_states(states_cfg)
 
         return states.apply(
             lambda states: {
@@ -67,7 +72,7 @@ class Orchestrator:
             }
         )
 
-    def get_states(self, states: list[OrchestratorState]) -> pulumi.Output:
+    def _get_states(self, states: list[OrchestratorState]) -> pulumi.Output:
         state_outputs = {}
 
         for index, state in enumerate(states):
@@ -81,7 +86,7 @@ class Orchestrator:
                 state_args["Next"] = next_state_name
 
             if state.type == "Task":
-                resource_output = self.get_resource(state.resource)
+                resource_output = self._get_resource(state.resource)
 
                 state_outputs[state.name] = pulumi.Output.all(
                     resource_output=resource_output, state_args=state_args
@@ -90,7 +95,7 @@ class Orchestrator:
             elif state.type == "Parallel":
                 branches_states = list()
                 for branch in state.branches:
-                    branch_definition = self.create_definition(branch.states)
+                    branch_definition = self._create_definition(branch.states)
                     branches_states.append(branch_definition)
 
                 state_outputs[state.name] = {**state_args, "Branches": branches_states}
@@ -100,7 +105,7 @@ class Orchestrator:
 
         return pulumi.Output.all(**state_outputs).apply(lambda outputs: outputs)
 
-    def get_resource(self, resource_name: str) -> pulumi.Output:
+    def _get_resource(self, resource_name: str) -> pulumi.Output:
         resource = self.orchest_resources[resource_name]
 
         if resource["type"] == "glue_job":
@@ -133,3 +138,44 @@ class Orchestrator:
                     },
                 }
             )
+
+    def _create_cron_trigger(self) -> None:
+        stack_name = pulumi.get_stack()
+
+        event_role = iam.Role(
+            f"{self.orchest_cfg.orchestrator_name}-event-rule-role",
+            name=f"{self.orchest_cfg.orchestrator_name}-event-rule-role-{stack_name}",
+            assume_role_policy=json.dumps(
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Principal": {"Service": "events.amazonaws.com"},
+                            "Effect": "Allow",
+                            "Sid": "",
+                        }
+                    ],
+                }
+            ),
+        )
+
+        iam.RolePolicyAttachment(
+            f"{self.orchest_cfg.orchestrator_name}-event-rule-policy-attachment",
+            role=event_role.name,
+            policy_arn="arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess",
+        )
+
+        rule = cloudwatch.EventRule(
+            f"{self.orchest_cfg.orchestrator_name}-rule",
+            name=f"{self.orchest_cfg.orchestrator_name}-rule-{stack_name}",
+            schedule_expression=self.orchest_cfg.cron_expression,
+            description=f"Schedule rule for {self.orchest_cfg.orchestrator_name}",
+        )
+
+        cloudwatch.EventTarget(
+            f"{self.orchest_cfg.orchestrator_name}-target",
+            rule=rule.name,
+            arn=self.state_machine.arn,
+            role_arn=event_role.arn,
+        )

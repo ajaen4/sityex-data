@@ -8,7 +8,6 @@ config:
           value: dev
     partner_uploader:
       build_version: 1.3.3 # partner_uploader version
-      cron_expression: cron(0 5 ? * SUN *)
       env_variables:
         - name: ENV
           value: dev
@@ -16,7 +15,6 @@ config:
       build_version: 0.2.2 # partner_downloader version
       cpu: 512
       memory: 4096
-      cron_expression: cron(0 3 * * ? *)
       env_variables:
         - name: FEVER_GDRIVE_FILE_ID
           value: 1U8TPpGz0wjM0r33vbxKnkbB9-Vqw6J5wq5CoKqOzSh4
@@ -60,18 +58,16 @@ config:
         --TESTING_CITY_ID: "None"
     fever:
       number_of_workers: 2
-      cron_expression: cron(0 4 * * ? *)
       args:
         --PROCESSED_DATE_CITIES: 11-10-2023
         --TESTING_PREFIX: "None"
         --TESTING_CITY_ID: "None"
     housing_anywhere:
       number_of_workers: 2
-      cron_expression: cron(0 4 * * ? *)
       args:
         --TESTING_PREFIX: "None"
   orchestrators:
-    test_orchestrator:
+    partner_workflow:
       type: STANDARD
       states:
         - name: Download partner data
