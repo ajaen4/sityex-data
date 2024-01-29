@@ -79,12 +79,14 @@ def main():
 
     add_newlines_udf = udf(add_newlines, StringType())
 
-    def start_translation_job(translate_client, s3_input_uri, s3_output_uri):
+    def start_translation_job(
+        translate_client, translate_role_arn, s3_input_uri, s3_output_uri
+    ):
         response = translate_client.start_text_translation_job(
             JobName="TranslateFeverEvents",
             InputDataConfig={"S3Uri": s3_input_uri, "ContentType": "text/plain"},
             OutputDataConfig={"S3Uri": s3_output_uri},
-            DataAccessRoleArn="arn:aws:iam::744516196303:role/service-role/AmazonTranslateServiceRole-test-DELETE",
+            DataAccessRoleArn=translate_role_arn,
             SourceLanguageCode="es",
             TargetLanguageCodes=["en"],
         )
@@ -106,6 +108,7 @@ def main():
             "DATA_BUCKET_NAME",
             "PROCESSED_DATE_CITIES",
             "TESTING_PREFIX",
+            "TRANSLATE_ROLE_ARN",
         ],
     )
 
@@ -121,6 +124,7 @@ def main():
 
     DATA_BUCKET_NAME = args["DATA_BUCKET_NAME"]
     PROCESSED_DATE_CITIES = args["PROCESSED_DATE_CITIES"]
+    TRANSLATE_ROLE_ARN = args["TRANSLATE_ROLE_ARN"]
 
     now = datetime.now()
     PROCESSED_DATE_FEVER = now.strftime("%d-%m-%Y")
@@ -134,6 +138,7 @@ def main():
     logger.info(f"PROCESSED_DATE_CITIES: {PROCESSED_DATE_CITIES}")
     logger.info(f"PROCESSED_DATE_FEVER: {PROCESSED_DATE_FEVER}")
     logger.info(f"TESTING_PREFIX: {TESTING_PREFIX}")
+    logger.info(f"TRANSLATE_ROLE_ARN: {TRANSLATE_ROLE_ARN}")
 
     logger.info("Starting Fever data processing...")
 
@@ -398,12 +403,14 @@ def main():
 
         job_id_plan_name = start_translation_job(
             translate_client,
+            TRANSLATE_ROLE_ARN,
             f"s3://{DATA_BUCKET_NAME}/{TRANSLATION_INPUT_BASE}/plan_name/",
             f"s3://{DATA_BUCKET_NAME}/{TRANS_OUT_KEY}/plan_name/",
         )
 
         job_id_description = start_translation_job(
             translate_client,
+            TRANSLATE_ROLE_ARN,
             f"s3://{DATA_BUCKET_NAME}/{TRANSLATION_INPUT_BASE}/description/",
             f"s3://{DATA_BUCKET_NAME}/{TRANS_OUT_KEY}/description/",
         )
