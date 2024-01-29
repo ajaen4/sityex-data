@@ -52,6 +52,7 @@ class Orchestrators:
                                 "states:*",
                                 "logs:*",
                                 "events:*",
+                                "iam:PassRole",
                             ],
                             "Effect": "Allow",
                             "Resource": "*",
