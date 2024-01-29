@@ -1,18 +1,25 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+from enum import Enum
+
+
+class StateType(Enum):
+    TASK = "Task"
+    PARALLEL = "Parallel"
+
 
 @dataclass
 class OrchestratorState:
     name: str
-    type: str
+    type: StateType
     resource: str
     is_end: bool = False
     branches: Optional[List["OrchestratorBranch"]] = field(default_factory=list)
 
     def __init__(self, state: dict):
         self.name = state["name"]
-        self.type = state["type"]
+        self.type = StateType(state["type"])
         self.resource = state["resource"] if "resource" in state else None
         self.is_end = state["is_end"] if "is_end" in state else False
 

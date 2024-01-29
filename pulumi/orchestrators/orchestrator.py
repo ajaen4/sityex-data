@@ -4,7 +4,7 @@ import pulumi
 from pulumi_aws.sfn import StateMachine
 from pulumi_aws import iam, cloudwatch
 
-from input_schemas import OrchestratorConfig, OrchestratorState
+from input_schemas import OrchestratorConfig, OrchestratorState, StateType
 from resource_types import ResourceTypes
 
 
@@ -26,10 +26,10 @@ class Orchestrator:
         orchest_resources = dict()
 
         for state in self.orchest_cfg.states:
-            if state.type == "Task":
+            if state.type == StateType.TASK:
                 resource_name = state.resource
                 orchest_resources[resource_name] = all_resources[resource_name]
-            if state.type == "Parallel":
+            if state.type == StateType.PARALLEL:
                 for branch in state.branches:
                     for branch_state in branch.states:
                         resource_name = branch_state.resource
@@ -78,7 +78,7 @@ class Orchestrator:
 
         for index, state in enumerate(states):
             state_args = dict()
-            state_args["Type"] = state.type
+            state_args["Type"] = state.type.value
 
             if index == len(states) - 1 or state.is_end:
                 state_args["End"] = True
@@ -86,14 +86,14 @@ class Orchestrator:
                 next_state_name = states[index + 1].name
                 state_args["Next"] = next_state_name
 
-            if state.type == "Task":
+            if state.type == StateType.TASK:
                 resource_output = self._get_resource(state.resource)
 
                 state_outputs[state.name] = pulumi.Output.all(
                     resource_output=resource_output, state_args=state_args
                 ).apply(lambda args: {**args["state_args"], **args["resource_output"]})
 
-            elif state.type == "Parallel":
+            elif state.type == StateType.PARALLEL:
                 branches_states = list()
                 for branch in state.branches:
                     branch_definition = self._create_definition(branch.states)
