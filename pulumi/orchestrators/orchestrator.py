@@ -5,6 +5,7 @@ from pulumi_aws.sfn import StateMachine
 from pulumi_aws import iam, cloudwatch
 
 from input_schemas import OrchestratorConfig, OrchestratorState
+from resource_types import ResourceTypes
 
 
 class Orchestrator:
@@ -108,7 +109,7 @@ class Orchestrator:
     def _get_resource(self, resource_name: str) -> pulumi.Output:
         resource = self.orchest_resources[resource_name]
 
-        if resource["type"] == "glue_job":
+        if resource["type"] == ResourceTypes.GLUE_JOB:
             return resource["job"].name.apply(
                 lambda job_name: {
                     "Resource": "arn:aws:states:::glue:startJobRun.sync",
@@ -116,7 +117,7 @@ class Orchestrator:
                 }
             )
 
-        elif resource["type"] == "ecs":
+        elif resource["type"] == ResourceTypes.CONTAINER:
             return pulumi.Output.all(
                 cluster_arn=resource["cluster"].arn,
                 task_def_arn=resource["task_def"].arn,
