@@ -39,11 +39,6 @@ class LakeJobs:
                         "Principal": {"Service": "glue.amazonaws.com"},
                         "Effect": "Allow",
                     },
-                    {
-                        "Action": "sts:AssumeRole",
-                        "Principal": {"Service": "translate.amazonaws.com"},
-                        "Effect": "Allow",
-                    },
                 ],
             },
         )
@@ -57,7 +52,12 @@ class LakeJobs:
                         "Version": "2012-10-17",
                         "Statement": [
                             {
-                                "Action": ["logs:*", "s3:*", "cloudwatch:*"],
+                                "Action": [
+                                    "logs:*",
+                                    "s3:*",
+                                    "cloudwatch:*",
+                                    "translate:*",
+                                ],
                                 "Effect": "Allow",
                                 "Resource": "*",
                             },
@@ -106,7 +106,7 @@ class LakeJobs:
                     "Version": "2012-10-17",
                     "Statement": [
                         {
-                            "Action": ["s3:*", "translate:*"],
+                            "Action": ["s3:*"],
                             "Effect": "Allow",
                             "Resource": "*",
                         },
