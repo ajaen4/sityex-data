@@ -64,6 +64,9 @@ def upload_housing_city_data(
             housing_ref.document(housing_id).delete()
 
     for doc in housing_data:
+        if "images" not in doc or len(doc["images"]) == 0:
+            continue
+
         new_doc = format_coordinates(doc)
 
         if doc["housing_id"] in housing_ids_db:
@@ -88,17 +91,19 @@ def upload_housing_index(housing_ref: firestore.CollectionReference):
     city_housing_index = dict()
     listings = list()
     for doc in housing_ref.stream():
-        if doc.id == "_index":
-            continue
-
         index_entry = dict()
         entry = doc.to_dict()
+
+        if doc.id == "_index" or "images" not in entry or len(entry["images"]) == 0:
+            continue
+
         housing_id = entry["housing_id"]
 
         index_entry["housing_id"] = housing_id
         index_entry["partner"] = entry["partner"]
         index_entry["coordinates"] = entry["location"]["coordinates"]
         index_entry["costsFormatted"] = entry["costsFormatted"]
+        index_entry["rank"] = entry["rank"]
 
         listings.append(index_entry)
 
