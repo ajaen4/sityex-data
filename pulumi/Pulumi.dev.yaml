@@ -13,8 +13,8 @@ config:
           value: dev
     partner_downloader:
       build_version: 0.2.2 # partner_downloader version
-      cpu: 512
-      memory: 4096
+      cpu: 1024
+      memory: 8192
       env_variables:
         - name: FEVER_GDRIVE_FILE_ID
           value: 1U8TPpGz0wjM0r33vbxKnkbB9-Vqw6J5wq5CoKqOzSh4
