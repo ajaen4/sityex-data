@@ -8,6 +8,8 @@ config:
           value: prod
     partner_uploader:
       build_version: 1.3.4 # partner_uploader version
+      cpu: 1024
+      memory: 4096
       env_variables:
         - name: ENV
           value: prod
