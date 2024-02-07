@@ -7,7 +7,7 @@
 -e pulumi/
 -e files/
 -e aws_lib/
--e local_scripts/
+-e local_scripts/containers/
 -e .
 pre-commit==3.4.0
 mypy==1.8.0
