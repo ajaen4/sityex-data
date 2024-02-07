@@ -67,8 +67,10 @@ class ContainerTasks:
             policy_arn=task_exec_policy.arn,
         )
 
-    def get_resources(self) -> dict[str, dict]:
+    def get_resources(
+        self, baseline_stack_ref: pulumi.StackReference
+    ) -> dict[str, dict]:
         resources = dict()
         for container in self.containers:
-            resources.update(container.get_resource_mapping())
+            resources.update(container.get_resource_mapping(baseline_stack_ref))
         return resources

@@ -10,12 +10,10 @@ from orchestrators import Orchestrator
 class Orchestrators:
     def __init__(
         self,
-        baseline_stack_ref: pulumi.StackReference,
         input: Input,
         all_resources: dict[dict],
     ):
         self.all_resources = all_resources
-        self.baseline_stack_ref = baseline_stack_ref
 
         self.create_role()
         self.create_orchests(input)
@@ -71,7 +69,6 @@ class Orchestrators:
     def create_orchests(self, input: Input):
         for orchestrator_cfg in input.orchestrators_cfgs:
             Orchestrator(
-                self.baseline_stack_ref,
                 orchestrator_cfg,
                 self.orchestrator_role,
                 self.all_resources,

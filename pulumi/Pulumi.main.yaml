@@ -3,11 +3,13 @@ config:
   containers:
     data_uploader:
       build_version: 0.1.2 # data_uploader version
+      subnet_type: PUBLIC
       env_variables:
         - name: ENV
           value: prod
     partner_uploader:
       build_version: 1.3.4 # partner_uploader version
+      subnet_type: PUBLIC
       cpu: 1024
       memory: 4096
       env_variables:
@@ -15,6 +17,7 @@ config:
           value: prod
     partner_downloader:
       build_version: 0.2.2 # partner_downloader version
+      subnet_type: PUBLIC
       cpu: 1024
       memory: 8192
       env_variables:
