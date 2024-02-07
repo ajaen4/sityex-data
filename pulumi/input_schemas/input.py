@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from pulumi import Config
-from .container_cfg import ContainerConfig
+from .container_cfg import ContainerConfig, SubnetType
 from .job_cfg import JobConfig
 from .orchestrator_cfg import OrchestratorConfig, OrchestratorState
 
@@ -30,21 +30,26 @@ class Input:
         containers_cfg_fmt = list()
 
         for name, config in containers_cfg.items():
-            env_variables = config["env_variables"] if "env_variables" in config else []
-            cron_expression = (
-                config["cron_expression"] if "cron_expression" in config else None
-            )
-            cpu = config["cpu"] if "cpu" in config else 256
-            memory = config["memory"] if "memory" in config else 512
+            build_version = config["build_version"]
+
+            extra_container_args = dict()
+
+            if "env_variables" in config:
+                extra_container_args["env_variables"] = config["env_variables"]
+            if "cron_expression" in config:
+                extra_container_args["cron_expression"] = config["cron_expression"]
+            if "cpu" in config:
+                extra_container_args["cpu"] = config["cpu"]
+            if "memory" in config:
+                extra_container_args["memory"] = config["memory"]
+            if "subnet_type" in config:
+                extra_container_args["subnet_type"] = SubnetType(config["subnet_type"])
 
             containers_cfg_fmt.append(
                 ContainerConfig(
                     container_name=name,
-                    build_version=config["build_version"],
-                    cpu=cpu,
-                    memory=memory,
-                    env_variables=env_variables,
-                    cron_expression=cron_expression,
+                    build_version=build_version,
+                    **extra_container_args,
                 )
             )
 
@@ -56,26 +61,26 @@ class Input:
         jobs_cfgs_fmt = list()
 
         for name, config in jobs_cfgs.items():
-            args = config["args"] if "args" in config else []
-            cron_expression = (
-                config["cron_expression"] if "cron_expression" in config else None
-            )
-            additional_python_modules = (
-                config["additional_python_modules"]
-                if "additional_python_modules" in config
-                else []
-            )
             number_of_workers = (
                 config["number_of_workers"] if "number_of_workers" in config else 2
             )
+
+            extra_job_args = dict()
+
+            if "args" in config:
+                extra_job_args["args"] = config["args"]
+            if "cron_expression" in config:
+                extra_job_args["cron_expression"] = config["cron_expression"]
+            if "additional_python_modules" in config:
+                extra_job_args["additional_python_modules"] = config[
+                    "additional_python_modules"
+                ]
 
             jobs_cfgs_fmt.append(
                 JobConfig(
                     job_name=name,
                     number_of_workers=number_of_workers,
-                    args=args,
-                    cron_expression=cron_expression,
-                    additional_python_modules=additional_python_modules,
+                    **extra_job_args,
                 )
             )
 
@@ -88,20 +93,21 @@ class Input:
 
         for name, config in orchestrator_cfg.items():
             type = config["type"]
-            cron_expression = (
-                config["cron_expression"] if "cron_expression" in config else None
-            )
-
             states = list()
             for state in config["states"]:
                 states.append(OrchestratorState(state))
+
+            extra_orchest_args = dict()
+
+            if "cron_expression" in config:
+                extra_orchest_args["cron_expression"] = config["cron_expression"]
 
             orchestrator_cfg_fmt.append(
                 OrchestratorConfig(
                     orchestrator_name=name,
                     type=type,
                     states=states,
-                    cron_expression=cron_expression,
+                    **extra_orchest_args,
                 )
             )
 

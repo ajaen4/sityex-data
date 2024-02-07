@@ -6,7 +6,7 @@ from pulumi_aws import ecs, iam, cloudwatch
 from .repository import Repository
 from .image import Image
 
-from input_schemas import ContainerConfig
+from input_schemas import ContainerConfig, SubnetType
 from resource_types import ResourceTypes
 
 
@@ -141,22 +141,40 @@ class Container:
                 task_definition_arn=self.task_def.arn,
                 launch_type="FARGATE",
                 network_configuration={
-                    "assign_public_ip": False,
-                    "subnets": [baseline_stack_ref.get_output("private_subnet_id")],
-                    "security_groups": [
-                        baseline_stack_ref.get_output("security_group_id")
-                    ],
+                    "assign_public_ip": self._has_public_ip(),
+                    "subnets": [self._get_subnet(baseline_stack_ref)],
+                    "security_groups": [self._get_security_group(baseline_stack_ref)],
                 },
             ),
         )
 
     def get_resource_mapping(
         self,
+        baseline_stack_ref: pulumi.StackReference,
     ):
+        subnet = self._get_subnet(baseline_stack_ref)
+        security_group = self._get_security_group(baseline_stack_ref)
         return {
             self.container_cfg.container_name: {
                 "type": ResourceTypes.CONTAINER,
                 "task_def": self.task_def,
                 "cluster": self.cluster,
+                "subnet": subnet,
+                "security_group": security_group,
+                "assign_public_ip": "ENABLED" if self._has_public_ip() else "DISABLED",
             }
         }
+
+    def _get_security_group(self, baseline_stack_ref: pulumi.StackReference):
+        return baseline_stack_ref.get_output("security_group_id")
+
+    def _get_subnet(self, baseline_stack_ref: pulumi.StackReference):
+        if self.container_cfg.subnet_type == SubnetType.PRIVATE:
+            return baseline_stack_ref.get_output("private_subnet_id")
+        else:
+            return baseline_stack_ref.get_output("public_subnet_id")
+
+    def _has_public_ip(
+        self,
+    ):
+        return self.container_cfg.subnet_type == SubnetType.PUBLIC
