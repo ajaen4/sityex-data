@@ -11,12 +11,10 @@ from resource_types import ResourceTypes
 class Orchestrator:
     def __init__(
         self,
-        baseline_stack_ref: pulumi.StackReference,
         orchest_cfg: OrchestratorConfig,
         role: iam.Role,
         all_resources: dict[dict],
     ):
-        self.baseline_stack_ref = baseline_stack_ref
         self.role = role
         self.orchest_cfg = orchest_cfg
         self.orchest_resources = self._get_orchest_resources(all_resources)
@@ -121,8 +119,9 @@ class Orchestrator:
             return pulumi.Output.all(
                 cluster_arn=resource["cluster"].arn,
                 task_def_arn=resource["task_def"].arn,
-                subnets=self.baseline_stack_ref.get_output("private_subnet_id"),
-                security_groups=self.baseline_stack_ref.get_output("security_group_id"),
+                subnet=resource["subnet"],
+                security_group=resource["security_group"],
+                assign_public_ip=resource["assign_public_ip"],
             ).apply(
                 lambda args: {
                     "Resource": "arn:aws:states:::ecs:runTask.sync",
@@ -132,8 +131,9 @@ class Orchestrator:
                         "TaskDefinition": args["task_def_arn"],
                         "NetworkConfiguration": {
                             "AwsvpcConfiguration": {
-                                "Subnets": [args["subnets"]],
-                                "SecurityGroups": [args["security_groups"]],
+                                "Subnets": [args["subnet"]],
+                                "SecurityGroups": [args["security_group"]],
+                                "AssignPublicIp": args["assign_public_ip"],
                             }
                         },
                     },
