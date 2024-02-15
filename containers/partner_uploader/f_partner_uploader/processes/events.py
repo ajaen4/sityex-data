@@ -35,7 +35,9 @@ def upload_events(partner: str, events_data_dir: str):
             col("city_id") == doc["geonameid"]
         )
 
-        logger.info(f'Uploading doc number {index}, city_name: {doc["name"]}...')
+        logger.info(
+            f'Uploading city_id {doc["geonameid"]}, city_name: {doc["name"]}...'
+        )
 
         events_ref = collection_ref.document(doc["geonameid"]).collection("events")
         upload_events_city_data(events_ref, events_city_data, partner)
