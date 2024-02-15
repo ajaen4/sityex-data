@@ -41,17 +41,27 @@ def upload_housing(partner: str, housing_data_dir: str):
 
         housing_data = s3_client.read_json(cfg.DATA_BUCKET_NAME, housing_data_path)
 
-        housing_ref = collection_ref.document(doc["geonameid"]).collection("housing")
-        upload_housing_city_data(housing_ref, housing_data, partner)
-        upload_housing_index(housing_ref)
+        city_ref = collection_ref.document(doc["geonameid"])
+        upload_housing_city_data(city_ref, housing_data, partner)
+        # upload_housing_index(city_ref)
 
 
 def upload_housing_city_data(
-    housing_ref: firestore.CollectionReference, housing_data: list[dict], partner: str
+    city_ref: firestore.DocumentReference, housing_data: list[dict], partner: str
 ):
+    housing_ref = city_ref.collection("housing")
+    images_ref = city_ref.collection("housing_images")
+
     housing_ids_db = [
         doc.id
         for doc in housing_ref.where(
+            filter=FieldFilter("partner", "==", partner)
+        ).stream()
+    ]
+
+    housing_ids_images = [
+        doc.id
+        for doc in images_ref.where(
             filter=FieldFilter("partner", "==", partner)
         ).stream()
     ]
@@ -63,16 +73,30 @@ def upload_housing_city_data(
             logger.info(f"Deleting housing_id: {housing_id}")
             housing_ref.document(housing_id).delete()
 
+        if housing_id not in housing_ids_images:
+            logger.info(f"Deleting images for housing_id: {housing_id}")
+            images_ref.document(housing_id).delete()
+
     for doc in housing_data:
         if "images" not in doc or len(doc["images"]) == 0:
             continue
 
         new_doc = format_coordinates(doc)
+        images_doc = {
+            "housing_id": doc["housing_id"],
+            "partner": doc["partner"],
+            "images": doc["images"],
+        }
 
         if doc["housing_id"] in housing_ids_db:
             housing_ref.document(doc["housing_id"]).set(new_doc, merge=True)
         else:
             housing_ref.document(doc["housing_id"]).set(new_doc)
+
+        if doc["housing_id"] in housing_ids_images:
+            images_ref.document(doc["housing_id"]).set(images_doc, merge=True)
+        else:
+            images_ref.document(doc["housing_id"]).set(images_doc)
 
 
 def format_coordinates(doc: dict):
@@ -83,13 +107,16 @@ def format_coordinates(doc: dict):
     new_doc["location"]["coordinates"]["longitude"] = float(
         doc["location"]["coordinates"]["longitude"]
     )
+    new_doc.pop("images")
+    new_doc.pop("localizedLinks")
 
     return new_doc
 
 
-def upload_housing_index(housing_ref: firestore.CollectionReference):
+def upload_housing_index(city_ref: firestore.DocumentReference):
+    housing_ref = city_ref.collection("housing")
     city_housing_index = dict()
-    listings = list()
+    index = list()
     for doc in housing_ref.stream():
         index_entry = dict()
         entry = doc.to_dict()
@@ -102,11 +129,11 @@ def upload_housing_index(housing_ref: firestore.CollectionReference):
         index_entry["housing_id"] = housing_id
         index_entry["partner"] = entry["partner"]
         index_entry["coordinates"] = entry["location"]["coordinates"]
-        index_entry["costsFormatted"] = entry["costsFormatted"]
+        index_entry["costs"] = entry["costs"]
         index_entry["rank"] = entry["rank"]
 
-        listings.append(index_entry)
+        index.append(index_entry)
 
-    city_housing_index["listings"] = listings
+    city_housing_index["index"] = index
 
-    housing_ref.document("_index").set(city_housing_index)
+    city_ref.collection("housing_index").document("index").set(city_housing_index)
