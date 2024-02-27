@@ -27,7 +27,7 @@ def download_housing_anywhere():
     logger.info(
         f"Data written to {housing_feed_paths.s3_prefix}{housing_feed_paths.file_name}"
     )
-    logger.info("Finished downloading housing data")
+    logger.info("Finished downloading HousingAnywhere data")
 
 
 def fetch_data(url: str):

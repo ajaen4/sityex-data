@@ -2,6 +2,7 @@ import csv
 import json
 from io import StringIO
 from ordered_set import OrderedSet
+import xml.etree.ElementTree as ET
 
 
 def write(path, content: list[list[str]]):
@@ -30,6 +31,12 @@ def write_lists(path, content: list[dict[str, str]]):
 def write_json(path, content: list):
     with open(path, "w") as multi_json_file:
         json.dump(content, multi_json_file, indent=2)
+
+
+def write_xml(path: str, content: str):
+    root = ET.fromstring(content)
+    tree = ET.ElementTree(root)
+    tree.write(path, encoding="utf-8", xml_declaration=True)
 
 
 def format_dics(content: str):
