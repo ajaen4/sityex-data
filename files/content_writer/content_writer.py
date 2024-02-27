@@ -3,7 +3,7 @@ from typing import Union
 from aws_lib.s3 import S3
 from files.file_paths import FilePaths
 
-from files import write_dics, write_lists, write_json, create_folder
+from files import write_dics, write_lists, write_json, create_folder, write_xml
 from files.content_writer.content_type import ContentType
 
 
@@ -36,6 +36,7 @@ class ContentWriter:
             content_type is None and isinstance(output, list)
         )
         json_output = content_type == ContentType.JSON
+        xml_output = content_type == ContentType.XML
 
         if dics_output:
             write_dics(
@@ -55,7 +56,13 @@ class ContentWriter:
                 output,
             )
 
-        if not dics_output and not lists_output and not json_output:
+        if xml_output:
+            write_xml(
+                LOCAL_PATH,
+                output,
+            )
+
+        if not (dics_output or lists_output or json_output or xml_output):
             raise TypeError(
                 f"Output type {type(output)} is not supported, must be list or dict"
             )

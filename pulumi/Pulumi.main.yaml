@@ -25,6 +25,8 @@ config:
           value: 1U8TPpGz0wjM0r33vbxKnkbB9-Vqw6J5wq5CoKqOzSh4
         - name: HOUSING_ANYWHERE_URL
           value: https://housinganywhere.com/feeds/Sityex/Sityex.json
+        - name: UNIPLACES_URL
+          value: https://feeds.uniplaces.com/feeds/sityex-en-es?_format=xml
   jobs:
     all_cities:
       number_of_workers: 4
