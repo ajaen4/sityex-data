@@ -16,7 +16,7 @@ config:
         - name: ENV
           value: prod
     partner_downloader:
-      build_version: 0.2.2 # partner_downloader version
+      build_version: 0.3.0 # partner_downloader version
       subnet_type: PUBLIC
       cpu: 1024
       memory: 8192
