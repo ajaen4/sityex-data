@@ -43,7 +43,6 @@ def upload_housing(partner: str, housing_data_dir: str):
 
         city_ref = collection_ref.document(doc["geonameid"])
         upload_housing_city_data(city_ref, housing_data, partner)
-        # upload_housing_index(city_ref)
 
 
 def upload_housing_city_data(
@@ -81,59 +80,55 @@ def upload_housing_city_data(
         if "images" not in doc or len(doc["images"]) == 0:
             continue
 
-        new_doc = format_coordinates(doc)
-        images_doc = {
-            "housing_id": doc["housing_id"],
-            "partner": doc["partner"],
-            "images": doc["images"],
-        }
+        new_doc = create_db_doc(doc)
 
         if doc["housing_id"] in housing_ids_db:
             housing_ref.document(doc["housing_id"]).set(new_doc, merge=True)
         else:
             housing_ref.document(doc["housing_id"]).set(new_doc)
 
+        images_doc = create_images_db_doc(doc)
         if doc["housing_id"] in housing_ids_images:
             images_ref.document(doc["housing_id"]).set(images_doc, merge=True)
         else:
             images_ref.document(doc["housing_id"]).set(images_doc)
 
 
-def format_coordinates(doc: dict):
-    new_doc = copy.deepcopy(doc)
-    new_doc["location"]["coordinates"]["latitude"] = float(
-        doc["location"]["coordinates"]["latitude"]
-    )
-    new_doc["location"]["coordinates"]["longitude"] = float(
-        doc["location"]["coordinates"]["longitude"]
-    )
-    new_doc.pop("images")
-    new_doc.pop("localizedLinks")
+def format_coordinates(coordinates: dict):
+    coordinates_fmt = copy.deepcopy(coordinates)
+    coordinates_fmt["latitude"] = float(coordinates["latitude"])
+    coordinates_fmt["longitude"] = float(coordinates["longitude"])
 
-    return new_doc
+    return coordinates_fmt
 
 
-def upload_housing_index(city_ref: firestore.DocumentReference):
-    housing_ref = city_ref.collection("housing")
-    city_housing_index = dict()
-    index = list()
-    for doc in housing_ref.stream():
-        index_entry = dict()
-        entry = doc.to_dict()
+def create_db_doc(doc: dict):
+    return {
+        "housing_id": doc["housing_id"],
+        "partner": doc["partner"],
+        "location": {
+            "neighborhood": doc["location"]["neighborhood"],
+            "coordinates": format_coordinates(doc["location"]["coordinates"]),
+        },
+        "costsFormatted": {
+            "price": doc["costsFormatted"]["price"],
+            "currency": doc["costsFormatted"]["currency"],
+        },
+        "availability": doc["availability"],
+        "description": doc["description"],
+        "facilities": doc["facilities"],
+        "kindLabel": doc["kindLabel"],
+        "link": doc["link"],
+        "title": doc["title"],
+        "typeLabel": doc["typeLabel"],
+    }
 
-        if doc.id == "_index" or "images" not in entry or len(entry["images"]) == 0:
-            continue
 
-        housing_id = entry["housing_id"]
-
-        index_entry["housing_id"] = housing_id
-        index_entry["partner"] = entry["partner"]
-        index_entry["coordinates"] = entry["location"]["coordinates"]
-        index_entry["costs"] = entry["costs"]
-        index_entry["rank"] = entry["rank"]
-
-        index.append(index_entry)
-
-    city_housing_index["index"] = index
-
-    city_ref.collection("housing_index").document("index").set(city_housing_index)
+def create_images_db_doc(doc: dict):
+    images = [image["sizes"]["640x480"]["link"] for image in doc["images"]]
+    if doc["partner"] == "housing_anywhere":
+        return {
+            "housing_id": doc["housing_id"],
+            "partner": doc["partner"],
+            "images": images,
+        }

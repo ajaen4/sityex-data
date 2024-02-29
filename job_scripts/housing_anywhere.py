@@ -12,6 +12,7 @@ from pyspark.sql.functions import (
     col,
     lit,
     concat,
+    struct,
 )
 from datetime import datetime
 
@@ -55,7 +56,7 @@ def main():
         f"s3a://{DATA_BUCKET_NAME}/bronze/partners/housing_anywhere/{PROCESSED_DATE_HOUSING}/"
     )
 
-    logger.info("Finished reading listings...")
+    logger.info("Finished reading listings")
 
     listings_count = listings.count()
 
@@ -70,6 +71,19 @@ def main():
     )
 
     logger.info("Finished reading cities to show")
+
+    logger.info("Unnesting facilities...")
+
+    facilities_schema = listings.schema["facilities"].dataType.fields
+    facility_names = [field.name for field in facilities_schema]
+
+    new_facilities_cols = [
+        col(f"facilities.{field_name}.value").alias(field_name)
+        for field_name in facility_names
+    ]
+    listings = listings.withColumn("facilities", struct(*new_facilities_cols))
+
+    logger.info("Unnested facilities")
 
     logger.info("Filtering listings...")
 
@@ -97,7 +111,14 @@ def main():
     listings_partner = (
         listings_postal_code.withColumn("partner", lit("housing_anywhere"))
         .withColumn("housing_id", concat(lit("ha"), col("id")))
+        .withColumn(
+            "is_furnised",
+            (col("facilities.roomFurniture") == "yes")
+            | (col("facilities.bedroomFurnished") == "yes"),
+        )
         .drop("id", "__utId__")
+        .withColumnRenamed("available", "availability")
+        .withColumnRenamed("originalLink", "link")
     )
 
     logger.info("Added partner field")
