@@ -2,10 +2,40 @@ import requests
 
 from files.content_writer import ContentWriter, ContentType
 from files.file_paths import FilePaths
+from files.file import xml_to_csv
 
 import f_partner_downloader.config as cfg
 from f_partner_downloader.logger import logger
 from f_partner_downloader.clients import s3_client
+
+FIELDS = [
+    "id",
+    "property_id",
+    "url",
+    "title",
+    "type",
+    "content",
+    "price",
+    "currency_code",
+    "rooms",
+    "bathrooms",
+    "address",
+    "postcode",
+    "city",
+    "country",
+    "latitude",
+    "longitude",
+    "is_furnished",
+    "bills_included",
+    "billing_cycle",
+    "availability",
+    "created_at",
+    "updated_at",
+    "picture_urls",
+    "minimum_stay",
+    "cancellation_policy",
+    "maximum_guests",
+]
 
 
 def download_uniplaces():
@@ -17,12 +47,13 @@ def download_uniplaces():
         bucket_name=cfg.DATA_BUCKET_NAME,
         local_prefix="./outputs/partners/uniplaces/",
         s3_prefix=f"bronze/partners/uniplaces/{cfg.FORMATTED_DATE}/",
-        file_name="listings.xml",
+        file_name="listings.csv",
     )
 
+    csv_content = xml_to_csv(FIELDS, listings)
     content_writer = ContentWriter(s3_client)
     content_writer.write_content(
-        listings, uniplaces_feed_paths, content_type=ContentType.XML
+        csv_content, uniplaces_feed_paths, content_type=ContentType.LIST_LISTS
     )
 
     logger.info(

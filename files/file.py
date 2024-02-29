@@ -41,3 +41,56 @@ def write_xml(path: str, content: str):
 
 def format_dics(content: str):
     return list(csv.DictReader(StringIO(content)))
+
+
+def xml_to_csv(fields: list[str], content: str):
+    root = ET.fromstring(content)
+    rows = []
+    rows.append(fields)
+
+    for ad in root.findall("ad"):
+        row = []
+        for field in fields[:-4]:
+            element = ad.find(field)
+            if element is not None and element.text is not None:
+                row.append(element.text.strip())
+            else:
+                row.append("")
+
+        pictures = ad.find("pictures")
+        if pictures is not None:
+            picture_urls = ";".join(
+                [
+                    pic.find("picture_url").text.strip()
+                    for pic in pictures.findall("picture")
+                ]
+            )
+        else:
+            picture_urls = ""
+        row.append(picture_urls)
+
+        requisites = ad.find("requisites")
+        if requisites is not None:
+            conditions = requisites.find("conditions")
+            if conditions is not None:
+                minimum_stay = conditions.find("minimum_stay")
+                if minimum_stay is not None:
+                    row.append(minimum_stay.text.strip())
+                else:
+                    row.append("")
+
+                cancellation_policy = conditions.find("cancellation_policy")
+                if cancellation_policy is not None:
+                    row.append(cancellation_policy.text.strip())
+                else:
+                    row.append("")
+
+                maximum_guests = conditions.find("maximum_guests")
+                if maximum_guests is not None:
+                    row.append(maximum_guests.text.strip())
+                else:
+                    row.append("")
+
+        rows.append(row)
+
+    return rows
