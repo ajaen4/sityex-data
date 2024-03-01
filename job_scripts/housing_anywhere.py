@@ -112,7 +112,7 @@ def main():
         listings_postal_code.withColumn("partner", lit("housing_anywhere"))
         .withColumn("housing_id", concat(lit("ha"), col("id")))
         .withColumn(
-            "is_furnised",
+            "is_furnished",
             (col("facilities.roomFurniture") == "yes")
             | (col("facilities.bedroomFurnished") == "yes"),
         )
