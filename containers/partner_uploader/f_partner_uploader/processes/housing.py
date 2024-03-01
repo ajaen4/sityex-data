@@ -121,6 +121,7 @@ def create_db_doc(doc: dict):
         "link": doc["link"],
         "title": doc["title"],
         "typeLabel": doc["typeLabel"],
+        "isFurnished": doc["is_furnished"],
     }
 
 
