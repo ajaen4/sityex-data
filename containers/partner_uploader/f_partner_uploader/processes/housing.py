@@ -72,7 +72,7 @@ def upload_housing_city_data(
             logger.info(f"Deleting housing_id: {housing_id}")
             housing_ref.document(housing_id).delete()
 
-        if housing_id not in housing_ids_images:
+        if housing_id not in housing_ids_input:
             logger.info(f"Deleting images for housing_id: {housing_id}")
             images_ref.document(housing_id).delete()
 
@@ -103,33 +103,71 @@ def format_coordinates(coordinates: dict):
 
 
 def create_db_doc(doc: dict):
-    return {
-        "housing_id": doc["housing_id"],
-        "partner": doc["partner"],
-        "location": {
-            "neighborhood": doc["location"]["neighborhood"],
-            "coordinates": format_coordinates(doc["location"]["coordinates"]),
-        },
-        "costsFormatted": {
-            "price": doc["costsFormatted"]["price"],
-            "currency": doc["costsFormatted"]["currency"],
-        },
-        "availability": doc["availability"],
-        "description": doc["description"],
-        "facilities": doc["facilities"],
-        "kindLabel": doc["kindLabel"],
-        "link": doc["link"],
-        "title": doc["title"],
-        "typeLabel": doc["typeLabel"],
-        "isFurnished": doc["is_furnished"],
-    }
+    if doc["partner"] == "housing_anywhere":
+        return {
+            "housing_id": doc["housing_id"],
+            "partner": doc["partner"],
+            "location": {
+                "neighborhood": doc["location"]["neighborhood"],
+                "coordinates": format_coordinates(doc["location"]["coordinates"]),
+            },
+            "costsFormatted": {
+                "price": doc["costsFormatted"]["price"],
+                "currency": doc["costsFormatted"]["currency"],
+            },
+            "availability": doc["availability"],
+            "description": doc["description"],
+            "facilities": doc["facilities"],
+            "kindLabel": doc["kindLabel"],
+            "link": doc["link"],
+            "title": doc["title"],
+            "typeLabel": doc["typeLabel"],
+            "isFurnished": doc["is_furnished"],
+        }
+
+    elif doc["partner"] == "uniplaces":
+        return {
+            "housing_id": doc["housing_id"],
+            "partner": doc["partner"],
+            "location": {
+                "coordinates": format_coordinates(
+                    {"latitude": doc["latitude"], "longitude": doc["longitude"]}
+                ),
+            },
+            "costsFormatted": {
+                "price": doc["costsFormatted_price"],
+                "currency": doc["costsFormatted_currency"],
+            },
+            "availability": [{"from": doc["availability"]}],
+            "description": doc["description"],
+            "kindLabel": doc["kindLabel"],
+            "link": doc["link"],
+            "title": doc["title"],
+            "isFurnished": doc["is_furnished"],
+            "facilities": {
+                "bedrooms": doc["rooms"],
+            },
+        }
+    else:
+        raise ValueError(f"Partner {doc['partner']} not supported")
 
 
 def create_images_db_doc(doc: dict):
-    images = [image["sizes"]["640x480"]["link"] for image in doc["images"]]
     if doc["partner"] == "housing_anywhere":
+        images = [image["sizes"]["640x480"]["link"] for image in doc["images"]]
         return {
             "housing_id": doc["housing_id"],
             "partner": doc["partner"],
             "images": images,
         }
+
+    elif doc["partner"] == "uniplaces":
+        images = doc["images"].split(";")
+        return {
+            "housing_id": doc["housing_id"],
+            "partner": doc["partner"],
+            "images": images,
+        }
+
+    else:
+        raise ValueError(f"Partner {doc['partner']} not supported")

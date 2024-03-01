@@ -32,4 +32,11 @@ def main():
 
     logger.info("Finished HousingAnywhere events upload")
 
+    logger.info("Starting Uniplaces events upload...")
+
+    HOUSING_ANYWHERE_DIR = f"silver/partners/uniplaces/{TODAY_DATE}/"
+    upload_housing(partner="uniplaces", housing_data_dir=HOUSING_ANYWHERE_DIR)
+
+    logger.info("Finished Uniplaces events upload")
+
     logger.info("Finished partner uploader")

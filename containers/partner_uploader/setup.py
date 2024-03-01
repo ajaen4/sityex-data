@@ -5,7 +5,7 @@ with open("requirements.txt") as f:
 
 setup(
     name="partner_uploader",
-    version="1.3.7",
+    version="1.3.8",
     packages=find_packages(),
     install_requires=requirements,
 )
