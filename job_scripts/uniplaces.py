@@ -108,7 +108,7 @@ def main():
         .withColumn(
             "kindLabel",
             when(col("type") == "Rooms", "private room")
-            .when(col("type") == "Apartment", "entire place")
+            .when(col("type") == "Flats", "entire place")
             .when(col("type") == "Beds", "private room"),
         )
         .withColumn(
