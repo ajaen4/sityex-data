@@ -116,8 +116,26 @@ def create_db_doc(doc: dict):
                 "currency": doc["costsFormatted"]["currency"],
             },
             "availability": doc["availability"],
-            "description": doc["description"],
-            "facilities": doc["facilities"],
+            "description": doc["description"][0:250],
+            "facilities": {
+                "totalSize": get_field(doc, ["facilities", "totalSize"]),
+                "bedrooms": get_field(doc, ["facilities", "bedrooms"]),
+                "airConditioning": get_field(doc, ["facilities", "airConditioning"]),
+                "balconyTerrace": get_field(doc, ["facilities", "balconyTerrace"]),
+                "bathroom": get_field(doc, ["facilities", "bathroom"]),
+                "garden": get_field(doc, ["facilities", "garden"]),
+                "kitchen": get_field(doc, ["facilities", "kitchen"]),
+                "parking": get_field(doc, ["facilities", "parking"]),
+                "pets": get_field(doc, ["facilities", "pets"]),
+                "wheelchairAccessible": get_field(
+                    doc, ["facilities", "wheelchairAccessible"]
+                ),
+                "basement": get_field(doc, ["facilities", "basement"]),
+                "dishwasher": get_field(doc, ["facilities", "dishwasher"]),
+                "washingMachine": get_field(doc, ["facilities", "washingMachine"]),
+                "dryer": get_field(doc, ["facilities", "dryer"]),
+                "heating": get_field(doc, ["facilities", "heating"]),
+            },
             "kindLabel": doc["kindLabel"],
             "link": doc["link"],
             "title": doc["title"],
@@ -139,7 +157,7 @@ def create_db_doc(doc: dict):
                 "currency": doc["costsFormatted_currency"],
             },
             "availability": [{"from": doc["availability"]}],
-            "description": doc["description"],
+            "description": doc["description"][0:250],
             "kindLabel": doc["kindLabel"],
             "link": doc["link"],
             "title": doc["title"],
@@ -150,6 +168,15 @@ def create_db_doc(doc: dict):
         }
     else:
         raise ValueError(f"Partner {doc['partner']} not supported")
+
+
+def get_field(doc: dict, fields: list[str]):
+    try:
+        for field in fields:
+            doc = doc[field]
+        return doc
+    except KeyError:
+        return None
 
 
 def create_images_db_doc(doc: dict):
