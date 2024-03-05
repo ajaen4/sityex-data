@@ -141,6 +141,7 @@ def create_db_doc(doc: dict):
             "title": doc["title"],
             "typeLabel": doc["typeLabel"],
             "isFurnished": doc["is_furnished"],
+            "created_at": doc["published"],
         }
 
     elif doc["partner"] == "uniplaces":
@@ -165,6 +166,7 @@ def create_db_doc(doc: dict):
             "facilities": {
                 "bedrooms": doc["rooms"],
             },
+            "created_at": doc["created_at"],
         }
     else:
         raise ValueError(f"Partner {doc['partner']} not supported")

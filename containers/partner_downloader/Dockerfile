@@ -1,17 +1,24 @@
 FROM python:3.11-slim-buster
 LABEL maintainer="SityEx"
 
-COPY parser/ ./parser/
-COPY files/ ./files/
-COPY aws_lib/ ./aws_lib/
-COPY gcp_lib/ ./gcp_lib/
-COPY containers/partner_downloader/ ./
+COPY parser/requirements.txt /parser/requirements.txt
+COPY files/requirements.txt /files/requirements.txt
+COPY aws_lib/requirements.txt /aws_lib/requirements.txt
+COPY gcp_lib/requirements.txt /gcp_lib/requirements.txt
+COPY containers/partner_downloader/requirements.txt /requirements.txt
 
-RUN pip install -r parser/requirements.txt
-RUN pip install -r files/requirements.txt
-RUN pip install -r aws_lib/requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r /parser/requirements.txt \
+    && pip install --no-cache-dir -r /files/requirements.txt \
+    && pip install --no-cache-dir -r /aws_lib/requirements.txt \
+    && pip install --no-cache-dir -r /gcp_lib/requirements.txt \
+    && pip install --no-cache-dir -r /requirements.txt
 
 RUN mkdir /outputs
+
+COPY parser/ /parser/
+COPY files/ /files/
+COPY aws_lib/ /aws_lib/
+COPY gcp_lib/ /gcp_lib/
+COPY containers/partner_downloader/ /
 
 ENTRYPOINT ["python", "app.py"]
