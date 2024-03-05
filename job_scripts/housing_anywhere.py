@@ -13,6 +13,7 @@ from pyspark.sql.functions import (
     lit,
     concat,
     struct,
+    when,
 )
 from datetime import datetime
 
@@ -113,8 +114,11 @@ def main():
         .withColumn("housing_id", concat(lit("ha"), col("id")))
         .withColumn(
             "is_furnished",
-            (col("facilities.roomFurniture") == "yes")
-            | (col("facilities.bedroomFurnished") == "yes"),
+            when(
+                (col("facilities.roomFurniture") == "yes")
+                | (col("facilities.bedroomFurnished") == "yes"),
+                True,
+            ).otherwise(False),
         )
         .drop("id", "__utId__")
         .withColumnRenamed("available", "availability")
