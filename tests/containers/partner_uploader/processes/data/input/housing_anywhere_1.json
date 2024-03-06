@@ -1,0 +1,415 @@
+{
+  "availability": [
+    {
+      "from": "2024-06-01",
+      "to": "9999-12-31"
+    }
+  ],
+  "costs": {
+    "agencyFee": 0,
+    "currency": "EUR",
+    "deposit": 90000,
+    "estimatedBills": 0,
+    "price": 90000,
+    "pricing": "monthly"
+  },
+  "costsFormatted": {
+    "agencyFee": "0.00",
+    "currency": "EUR",
+    "deposit": "900.00",
+    "estimatedBills": "0.00",
+    "price": "900.00",
+    "pricing": "monthly"
+  },
+  "currentOccupancy": 0,
+  "description": "HEATING + WATER + WIFI INCLUDED UP TO 100 Euro per month. Individual water and electricity meter for your flat.\nCleaner 12 Euro per hour once a week \n\n\nStudio 1 salle de bain, 1 canapé-lit deux places dans le séjour.\n \nWifi haut débit gratuit/ TV câblée internationale /climatisation et chauffage\n \nCalle de la Manzana 17, 28015 Madrid / City centre (Gran Via, Plaza de España).\n \nStation de métro : Plaza de España/sortie Noviciado, ou San Bernardo\n \nParking public : pza de los Mostenses, au coin de la rue (tarifs à la semaine) CONTRAT DE BAIL OBLIGATOIRE",
+  "facilities": {
+    "airConditioning": "yes",
+    "allergyFriendly": "no",
+    "balconyTerrace": "private",
+    "basement": "no",
+    "bathroom": "private",
+    "bed": "yes",
+    "bedroomFurnished": "yes",
+    "bedroomLock": "no",
+    "bedrooms": "1",
+    "cleaningCommonRoomsIncluded": "no",
+    "cleaningPrivateRoomIncluded": "no",
+    "closet": "yes",
+    "couplesAllowed": "yes",
+    "desk": "yes",
+    "dishwasher": "yes",
+    "dryer": "no",
+    "electricityCostIncluded": "yes",
+    "flooring": "wood",
+    "garden": "no",
+    "gasCostIncluded": "no",
+    "heating": "electrical",
+    "internet": "yes",
+    "internetCostIncluded": "no",
+    "kitchen": "private",
+    "kitchenware": "private",
+    "livingRoom": "private",
+    "parking": "private",
+    "pets": "discussable",
+    "playMusic": "discussable",
+    "registrationPossible": "no",
+    "roomFurniture": "yes",
+    "smoking": "outside_only",
+    "toilet": "private",
+    "totalSize": "35",
+    "tv": "yes",
+    "washingMachine": "yes",
+    "waterCostIncluded": "yes",
+    "wheelchairAccessible": "no",
+    "wifi": "yes"
+  },
+  "images": [
+    {
+      "originalLink": "https://housinganywhere.imgix.net/room/267696/e769e470-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+      "sizes": {
+        "1024x768": {
+          "height": 768,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e470-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=768&w=1024",
+          "width": 1024
+        },
+        "2048x1536": {
+          "height": 1536,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e470-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+          "width": 2048
+        },
+        "320x240": {
+          "height": 240,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e470-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=240&w=320",
+          "width": 320
+        },
+        "640x480": {
+          "height": 480,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e470-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=480&w=640",
+          "width": 640
+        },
+        "800x600": {
+          "height": 600,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e470-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=600&w=800",
+          "width": 800
+        }
+      }
+    },
+    {
+      "originalLink": "https://housinganywhere.imgix.net/room/267696/e769e592-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+      "sizes": {
+        "1024x768": {
+          "height": 768,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e592-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=768&w=1024",
+          "width": 1024
+        },
+        "2048x1536": {
+          "height": 1536,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e592-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+          "width": 2048
+        },
+        "320x240": {
+          "height": 240,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e592-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=240&w=320",
+          "width": 320
+        },
+        "640x480": {
+          "height": 480,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e592-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=480&w=640",
+          "width": 640
+        },
+        "800x600": {
+          "height": 600,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e592-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=600&w=800",
+          "width": 800
+        }
+      }
+    },
+    {
+      "originalLink": "https://housinganywhere.imgix.net/room/267696/e769ea88-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+      "sizes": {
+        "1024x768": {
+          "height": 768,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769ea88-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=768&w=1024",
+          "width": 1024
+        },
+        "2048x1536": {
+          "height": 1536,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769ea88-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+          "width": 2048
+        },
+        "320x240": {
+          "height": 240,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769ea88-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=240&w=320",
+          "width": 320
+        },
+        "640x480": {
+          "height": 480,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769ea88-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=480&w=640",
+          "width": 640
+        },
+        "800x600": {
+          "height": 600,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769ea88-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=600&w=800",
+          "width": 800
+        }
+      }
+    },
+    {
+      "originalLink": "https://housinganywhere.imgix.net/room/267696/e769e344-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+      "sizes": {
+        "1024x768": {
+          "height": 768,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e344-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=768&w=1024",
+          "width": 1024
+        },
+        "2048x1536": {
+          "height": 1536,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e344-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+          "width": 2048
+        },
+        "320x240": {
+          "height": 240,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e344-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=240&w=320",
+          "width": 320
+        },
+        "640x480": {
+          "height": 480,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e344-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=480&w=640",
+          "width": 640
+        },
+        "800x600": {
+          "height": 600,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e344-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=600&w=800",
+          "width": 800
+        }
+      }
+    },
+    {
+      "originalLink": "https://housinganywhere.imgix.net/room/267696/e769e7e0-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+      "sizes": {
+        "1024x768": {
+          "height": 768,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e7e0-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=768&w=1024",
+          "width": 1024
+        },
+        "2048x1536": {
+          "height": 1536,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e7e0-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+          "width": 2048
+        },
+        "320x240": {
+          "height": 240,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e7e0-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=240&w=320",
+          "width": 320
+        },
+        "640x480": {
+          "height": 480,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e7e0-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=480&w=640",
+          "width": 640
+        },
+        "800x600": {
+          "height": 600,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e7e0-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=600&w=800",
+          "width": 800
+        }
+      }
+    },
+    {
+      "originalLink": "https://housinganywhere.imgix.net/room/267696/e769e902-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+      "sizes": {
+        "1024x768": {
+          "height": 768,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e902-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=768&w=1024",
+          "width": 1024
+        },
+        "2048x1536": {
+          "height": 1536,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e902-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+          "width": 2048
+        },
+        "320x240": {
+          "height": 240,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e902-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=240&w=320",
+          "width": 320
+        },
+        "640x480": {
+          "height": 480,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e902-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=480&w=640",
+          "width": 640
+        },
+        "800x600": {
+          "height": 600,
+          "link": "https://housinganywhere.imgix.net/room/267696/e769e902-ec76-11e5-88fd-42010af00006.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=600&w=800",
+          "width": 800
+        }
+      }
+    },
+    {
+      "originalLink": "https://housinganywhere.imgix.net/room/267696/a873d49d-51df-4de9-9097-fec8e6f29ddf.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+      "sizes": {
+        "1024x768": {
+          "height": 768,
+          "link": "https://housinganywhere.imgix.net/room/267696/a873d49d-51df-4de9-9097-fec8e6f29ddf.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=768&w=1024",
+          "width": 1024
+        },
+        "2048x1536": {
+          "height": 1536,
+          "link": "https://housinganywhere.imgix.net/room/267696/a873d49d-51df-4de9-9097-fec8e6f29ddf.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+          "width": 2048
+        },
+        "320x240": {
+          "height": 240,
+          "link": "https://housinganywhere.imgix.net/room/267696/a873d49d-51df-4de9-9097-fec8e6f29ddf.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=240&w=320",
+          "width": 320
+        },
+        "640x480": {
+          "height": 480,
+          "link": "https://housinganywhere.imgix.net/room/267696/a873d49d-51df-4de9-9097-fec8e6f29ddf.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=480&w=640",
+          "width": 640
+        },
+        "800x600": {
+          "height": 600,
+          "link": "https://housinganywhere.imgix.net/room/267696/a873d49d-51df-4de9-9097-fec8e6f29ddf.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=600&w=800",
+          "width": 800
+        }
+      }
+    },
+    {
+      "originalLink": "https://housinganywhere.imgix.net/room/267696/d0fdecbd-b051-467d-b2c3-157a65f6785f.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+      "sizes": {
+        "1024x768": {
+          "height": 768,
+          "link": "https://housinganywhere.imgix.net/room/267696/d0fdecbd-b051-467d-b2c3-157a65f6785f.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=768&w=1024",
+          "width": 1024
+        },
+        "2048x1536": {
+          "height": 1536,
+          "link": "https://housinganywhere.imgix.net/room/267696/d0fdecbd-b051-467d-b2c3-157a65f6785f.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+          "width": 2048
+        },
+        "320x240": {
+          "height": 240,
+          "link": "https://housinganywhere.imgix.net/room/267696/d0fdecbd-b051-467d-b2c3-157a65f6785f.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=240&w=320",
+          "width": 320
+        },
+        "640x480": {
+          "height": 480,
+          "link": "https://housinganywhere.imgix.net/room/267696/d0fdecbd-b051-467d-b2c3-157a65f6785f.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=480&w=640",
+          "width": 640
+        },
+        "800x600": {
+          "height": 600,
+          "link": "https://housinganywhere.imgix.net/room/267696/d0fdecbd-b051-467d-b2c3-157a65f6785f.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=600&w=800",
+          "width": 800
+        }
+      }
+    },
+    {
+      "originalLink": "https://housinganywhere.imgix.net/room/267696/50e79efa-86f0-47d7-a3d6-b24bd86a2276.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+      "sizes": {
+        "1024x768": {
+          "height": 768,
+          "link": "https://housinganywhere.imgix.net/room/267696/50e79efa-86f0-47d7-a3d6-b24bd86a2276.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=768&w=1024",
+          "width": 1024
+        },
+        "2048x1536": {
+          "height": 1536,
+          "link": "https://housinganywhere.imgix.net/room/267696/50e79efa-86f0-47d7-a3d6-b24bd86a2276.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+          "width": 2048
+        },
+        "320x240": {
+          "height": 240,
+          "link": "https://housinganywhere.imgix.net/room/267696/50e79efa-86f0-47d7-a3d6-b24bd86a2276.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=240&w=320",
+          "width": 320
+        },
+        "640x480": {
+          "height": 480,
+          "link": "https://housinganywhere.imgix.net/room/267696/50e79efa-86f0-47d7-a3d6-b24bd86a2276.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=480&w=640",
+          "width": 640
+        },
+        "800x600": {
+          "height": 600,
+          "link": "https://housinganywhere.imgix.net/room/267696/50e79efa-86f0-47d7-a3d6-b24bd86a2276.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=600&w=800",
+          "width": 800
+        }
+      }
+    },
+    {
+      "categories": ["floorplan"],
+      "originalLink": "https://housinganywhere.imgix.net/room/267696/cedd10a0-6d97-40a6-9211-2c55297f29ec.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+      "sizes": {
+        "1024x768": {
+          "height": 768,
+          "link": "https://housinganywhere.imgix.net/room/267696/cedd10a0-6d97-40a6-9211-2c55297f29ec.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=768&w=1024",
+          "width": 1024
+        },
+        "2048x1536": {
+          "height": 1536,
+          "link": "https://housinganywhere.imgix.net/room/267696/cedd10a0-6d97-40a6-9211-2c55297f29ec.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=1536&w=2048",
+          "width": 2048
+        },
+        "320x240": {
+          "height": 240,
+          "link": "https://housinganywhere.imgix.net/room/267696/cedd10a0-6d97-40a6-9211-2c55297f29ec.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=240&w=320",
+          "width": 320
+        },
+        "640x480": {
+          "height": 480,
+          "link": "https://housinganywhere.imgix.net/room/267696/cedd10a0-6d97-40a6-9211-2c55297f29ec.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=480&w=640",
+          "width": 640
+        },
+        "800x600": {
+          "height": 600,
+          "link": "https://housinganywhere.imgix.net/room/267696/cedd10a0-6d97-40a6-9211-2c55297f29ec.jpg?auto=format%2Ccompress&cs=srgb&fit=clip&h=600&w=800",
+          "width": 800
+        }
+      }
+    }
+  ],
+  "isFocusCity": true,
+  "kind": 1,
+  "kindLabel": "entire place",
+  "localizedLinks": {
+    "de": "https://housinganywhere.com/de/room/ut83065/es/Madrid/calle-de-la-manzana?utm_medium=affiliate&utm_source=Sityex&affiliate_partner_id=987463&utm_content=Madrid",
+    "es": "https://housinganywhere.com/es/room/ut83065/es/Madrid/calle-de-la-manzana?utm_medium=affiliate&utm_source=Sityex&affiliate_partner_id=987463&utm_content=Madrid",
+    "fr": "https://housinganywhere.com/fr/room/ut83065/es/Madrid/calle-de-la-manzana?utm_medium=affiliate&utm_source=Sityex&affiliate_partner_id=987463&utm_content=Madrid",
+    "it": "https://housinganywhere.com/it/room/ut83065/es/Madrid/calle-de-la-manzana?utm_medium=affiliate&utm_source=Sityex&affiliate_partner_id=987463&utm_content=Madrid",
+    "nl": "https://housinganywhere.com/nl/room/ut83065/es/Madrid/calle-de-la-manzana?utm_medium=affiliate&utm_source=Sityex&affiliate_partner_id=987463&utm_content=Madrid",
+    "pl": "https://housinganywhere.com/pl/room/ut83065/es/Madrid/calle-de-la-manzana?utm_medium=affiliate&utm_source=Sityex&affiliate_partner_id=987463&utm_content=Madrid",
+    "pt": "https://housinganywhere.com/pt/room/ut83065/es/Madrid/calle-de-la-manzana?utm_medium=affiliate&utm_source=Sityex&affiliate_partner_id=987463&utm_content=Madrid",
+    "ro": "https://housinganywhere.com/ro/room/ut83065/es/Madrid/calle-de-la-manzana?affiliate_partner_id=987463&utm_content=Madrid&utm_medium=affiliate&utm_source=Sityex",
+    "ru": "https://housinganywhere.com/ru/room/ut83065/es/Madrid/calle-de-la-manzana?utm_source=Sityex&affiliate_partner_id=987463&utm_content=Madrid&utm_medium=affiliate",
+    "sv": "https://housinganywhere.com/sv/room/ut83065/es/Madrid/calle-de-la-manzana?utm_medium=affiliate&utm_source=Sityex&affiliate_partner_id=987463&utm_content=Madrid",
+    "uk": "https://housinganywhere.com/uk/room/ut83065/es/Madrid/calle-de-la-manzana?affiliate_partner_id=987463&utm_content=Madrid&utm_medium=affiliate&utm_source=Sityex",
+    "zh": "https://housinganywhere.com/zh/room/ut83065/es/Madrid/calle-de-la-manzana?utm_medium=affiliate&utm_source=Sityex&affiliate_partner_id=987463&utm_content=Madrid"
+  },
+  "location": {
+    "city": "Madrid",
+    "coordinates": {
+      "latitude": "40.42394",
+      "longitude": "-3.70866"
+    },
+    "country": "Spain",
+    "countryCode": "ES",
+    "neighborhood": "Universidad",
+    "postalCode": "28015",
+    "street": "Calle de la Manzana"
+  },
+  "maxAge": 0,
+  "minAge": 0,
+  "minimumStayMonths": 3,
+  "moveInWindow": 0,
+  "link": "https://housinganywhere.com/room/ut83065/es/Madrid/calle-de-la-manzana?affiliate_partner_id=987463&utm_content=Madrid&utm_medium=affiliate&utm_source=Sityex",
+  "preferredGender": "",
+  "published": "2022-02-14",
+  "rank": 233,
+  "rentType": "monthly",
+  "title": "Calle de la Manzana, Madrid",
+  "type": 3,
+  "typeLabel": "apartment",
+  "updated": "2024-03-04T09:06:23Z",
+  "partner": "housing_anywhere",
+  "housing_id": "ha83065",
+  "is_furnished": true
+}

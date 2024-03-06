@@ -1,0 +1,45 @@
+{
+  "housing_id": "ha83065",
+  "partner": "housing_anywhere",
+  "location": {
+    "neighborhood": "Universidad",
+    "coordinates": {
+      "latitude": 40.42394,
+      "longitude": -3.70866
+    }
+  },
+  "costsFormatted": {
+    "price": "900.00",
+    "currency": "EUR"
+  },
+  "availability": [
+    {
+      "from": "2024-06-01",
+      "to": "9999-12-31"
+    }
+  ],
+  "description": "HEATING + WATER + WIFI INCLUDED UP TO 100 Euro per month. Individual water and electricity meter for your flat.\nCleaner 12 Euro per hour once a week \n\n\nStudio 1 salle de bain, 1 canap\u00e9-lit deux places dans le s\u00e9jour.\n \nWifi haut d\u00e9bit gratuit/ TV c\u00e2b",
+  "facilities": {
+    "totalSize": "35",
+    "bedrooms": "1",
+    "airConditioning": "yes",
+    "balconyTerrace": "private",
+    "bathroom": "private",
+    "garden": "no",
+    "kitchen": "private",
+    "parking": "private",
+    "pets": "discussable",
+    "wheelchairAccessible": "no",
+    "basement": "no",
+    "dishwasher": "yes",
+    "washingMachine": "yes",
+    "dryer": "no",
+    "heating": "electrical"
+  },
+  "kindLabel": "entire place",
+  "link": "https://housinganywhere.com/room/ut83065/es/Madrid/calle-de-la-manzana?affiliate_partner_id=987463&utm_content=Madrid&utm_medium=affiliate&utm_source=Sityex",
+  "title": "Calle de la Manzana, Madrid",
+  "typeLabel": "apartment",
+  "isFurnished": true,
+  "created_at": "2022-02-14"
+}
