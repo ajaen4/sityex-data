@@ -1,9 +1,9 @@
 FROM python:3.11-slim-buster
 LABEL maintainer="SityEx"
 
-COPY parser/requirements.txt /parser/
-COPY files/requirements.txt /files/
-COPY aws_lib/requirements.txt /aws_lib/
+COPY libs/parser/requirements.txt /parser/
+COPY libs/files/requirements.txt /files/
+COPY libs/aws_lib/requirements.txt /aws_lib/
 COPY containers/partner_uploader/requirements.txt /
 
 RUN pip install --no-cache-dir -r /parser/requirements.txt && \
@@ -13,9 +13,9 @@ RUN pip install --no-cache-dir -r /parser/requirements.txt && \
 
 RUN mkdir /outputs
 
-COPY parser/ /parser/
-COPY files/ /files/
-COPY aws_lib/ /aws_lib/
+COPY libs/parser/ /parser/
+COPY libs/files/ /files/
+COPY libs/aws_lib/ /aws_lib/
 COPY containers/partner_uploader/ /
 
 ENTRYPOINT ["python", "app.py"]

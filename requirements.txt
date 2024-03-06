@@ -3,10 +3,8 @@
 -e containers/data_uploader/
 -e containers/partner_uploader/
 -e containers/partner_downloader/
--e parser/
--e pulumi/
--e files/
--e aws_lib/
--e local_scripts/containers/
--e .
+-e libs/
+-r local_scripts/containers/requirements.txt
+-r tests/requirements.txt
 pre-commit==3.4.0
+pytest==8.0.2
