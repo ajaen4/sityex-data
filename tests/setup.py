@@ -4,8 +4,8 @@ with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
 setup(
-    name="partner_downloader",
-    version="0.3.3",
+    name="sityex-data-tests",
+    version="0.1",
     packages=find_packages(),
     install_requires=requirements,
 )
