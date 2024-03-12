@@ -1,4 +1,4 @@
-from files.file_paths import FilePaths
+from internal_lib.files.file_paths import FilePaths
 from dataclasses import dataclass
 
 

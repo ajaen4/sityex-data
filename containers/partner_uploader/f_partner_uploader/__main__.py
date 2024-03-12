@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from f_partner_uploader.logger import logger
+from internal_lib.logger import logger
 from f_partner_uploader.processes.events import upload_events
 from f_partner_uploader.processes.housing import upload_housing
 
@@ -10,13 +10,6 @@ def main():
 
     now = datetime.now()
     TODAY_DATE = now.strftime("%d-%m-%Y")
-
-    logger.info("Starting Fever upload...")
-
-    FEVER_DATA_DIR = f"silver/partners/fever/catalog/{TODAY_DATE}/"
-    upload_events(partner="fever", events_data_dir=FEVER_DATA_DIR)
-
-    logger.info("Finished Fever upload")
 
     logger.info("Starting SityEx events upload...")
 
