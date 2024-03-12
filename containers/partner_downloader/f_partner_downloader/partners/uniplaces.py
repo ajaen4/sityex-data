@@ -1,8 +1,8 @@
 import requests
 
-from files.content_writer import ContentWriter, ContentType
-from files.file_paths import FilePaths
-from files.file import xml_to_csv
+from internal_lib.files.content_writer import ContentWriter, ContentType
+from internal_lib.files.file_paths import FilePaths
+from internal_lib.files.file import xml_to_csv
 
 import f_partner_downloader.config as cfg
 from f_partner_downloader.logger import logger

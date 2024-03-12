@@ -1,7 +1,7 @@
 from enum import Enum
 from copy import deepcopy
 
-from files.content_writer import ContentWriter
+from internal_lib.files.content_writer import ContentWriter
 
 from f_scrapper.scraper_extractor import ScraperExtractor
 from f_scrapper.logger import logger

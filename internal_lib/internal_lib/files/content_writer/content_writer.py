@@ -1,10 +1,16 @@
 from typing import Union
 
-from aws_lib.s3 import S3
-from files.file_paths import FilePaths
+from internal_lib.aws.s3 import S3
+from internal_lib.files.file_paths import FilePaths
 
-from files import write_dics, write_lists, write_json, create_folder, write_xml
-from files.content_writer.content_type import ContentType
+from internal_lib.files import (
+    write_dics,
+    write_lists,
+    write_json,
+    create_folder,
+    write_xml,
+)
+from internal_lib.files.content_writer.content_type import ContentType
 
 
 class ContentWriter:
@@ -30,10 +36,10 @@ class ContentWriter:
         create_folder(file_paths.local_prefix)
 
         dics_output = content_type == ContentType.LIST_DICS or (
-            content_type is None and isinstance(output, dict)
+            content_type is None and isinstance(output[0], dict)
         )
         lists_output = content_type == ContentType.LIST_LISTS or (
-            content_type is None and isinstance(output, list)
+            content_type is None and isinstance(output[0], list)
         )
         json_output = content_type == ContentType.JSON
         xml_output = content_type == ContentType.XML

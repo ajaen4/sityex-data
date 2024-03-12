@@ -21,8 +21,6 @@ config:
       cpu: 1024
       memory: 8192
       env_variables:
-        - name: FEVER_GDRIVE_FILE_ID
-          value: 1U8TPpGz0wjM0r33vbxKnkbB9-Vqw6J5wq5CoKqOzSh4
         - name: HOUSING_ANYWHERE_URL
           value: https://housinganywhere.com/feeds/Sityex/Sityex.json
         - name: UNIPLACES_URL
@@ -63,12 +61,6 @@ config:
         --PROCESSED_DATE: 11-10-2023
         --TESTING_PREFIX: "None"
         --TESTING_CITY_ID: "None"
-    fever:
-      number_of_workers: 2
-      args:
-        --PROCESSED_DATE_CITIES: 11-10-2023
-        --TESTING_PREFIX: "None"
-        --TESTING_CITY_ID: "None"
     housing_anywhere:
       number_of_workers: 2
       args:
@@ -87,12 +79,6 @@ config:
         - name: Process partner data
           type: Parallel
           branches:
-            - name: Fever branch
-              states:
-                - name: Fever job
-                  type: Task
-                  resource: fever
-                  is_end: true
             - name: HousingAnywhere branch
               states:
                 - name: HousingAnywhere job

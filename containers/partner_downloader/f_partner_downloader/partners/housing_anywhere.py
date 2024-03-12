@@ -1,7 +1,7 @@
 import requests
 
-from files.content_writer import ContentWriter, ContentType
-from files.file_paths import FilePaths
+from internal_lib.files.content_writer import ContentWriter, ContentType
+from internal_lib.files.file_paths import FilePaths
 
 import f_partner_downloader.config as cfg
 from f_partner_downloader.logger import logger

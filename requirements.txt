@@ -1,9 +1,9 @@
--e containers/scrapper/
--e containers/api_extractor/
--e containers/data_uploader/
--e containers/partner_uploader/
--e containers/partner_downloader/
--e libs/
+-e containers/scrapper/ --config-settings editable_mode=strict
+-e containers/api_extractor/ --config-settings editable_mode=strict
+-e containers/data_uploader/ --config-settings editable_mode=strict
+-e containers/partner_uploader/ --config-settings editable_mode=strict
+-e containers/partner_downloader/ --config-settings editable_mode=strict
+-e internal_lib/ --config-settings editable_mode=strict
 -r local_scripts/containers/requirements.txt
 -r tests/requirements.txt
 pre-commit==3.4.0

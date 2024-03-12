@@ -1,7 +1,7 @@
 import boto3
 
-from aws_lib.s3 import S3
-from files.content_writer import ContentWriter
+from internal_lib.aws.s3 import S3
+from internal_lib.files.content_writer import ContentWriter
 
 from f_scrapper.scraper_extractor import ScraperExtractor
 from f_scrapper.logger import logger

@@ -1,12 +1,12 @@
 import boto3
 
-from aws_lib.s3 import S3
-from files.file_paths import FilePaths
+from internal_lib.aws.s3 import S3
+from internal_lib.files.file_paths import FilePaths
 
-from f_api_extractor.api_extractor import ApiExtractor, ExtractorArgs
+from internal_lib.api.api_extractor import ApiExtractor, ExtractorArgs
 from f_api_extractor.clients import GeoDBClient
 import f_api_extractor.config as cfg
-from files.content_writer import ContentWriter
+from internal_lib.files.content_writer import ContentWriter
 
 from .transformers import (
     transform_country_code,

@@ -11,13 +11,6 @@ def main():
     now = datetime.now()
     TODAY_DATE = now.strftime("%d-%m-%Y")
 
-    logger.info("Starting Fever upload...")
-
-    FEVER_DATA_DIR = f"silver/partners/fever/catalog/{TODAY_DATE}/"
-    upload_events(partner="fever", events_data_dir=FEVER_DATA_DIR)
-
-    logger.info("Finished Fever upload")
-
     logger.info("Starting SityEx events upload...")
 
     SITYEX_DATA_DIR = "maps/sityex_events.csv"

@@ -1,8 +1,8 @@
 import requests
 from typing import Optional
 
-from f_api_extractor.logger import logger
-from .client import Client
+from internal_lib.logger import logger
+from internal_lib.api.client import Client
 
 
 class IMFClient(Client):

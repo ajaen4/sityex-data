@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from aws_lib.s3 import S3
+from internal_lib.aws.s3 import S3
 from parser.strings import remove_diacritics
 
 from f_data_uploader.logger import logger
