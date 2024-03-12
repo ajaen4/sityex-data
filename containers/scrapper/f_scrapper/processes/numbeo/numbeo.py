@@ -4,7 +4,7 @@ from internal_lib.aws.s3 import S3
 from internal_lib.files.content_writer import ContentWriter
 
 from f_scrapper.scraper_extractor import ScraperExtractor
-from f_scrapper.logger import logger
+from internal_lib.logger import logger
 from f_scrapper.processes.run_scrape import run_scrape
 from .scrape_cfg import NumbeoScrapeConfigs
 

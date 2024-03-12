@@ -4,7 +4,7 @@ from copy import deepcopy
 from internal_lib.files.content_writer import ContentWriter
 
 from f_scrapper.scraper_extractor import ScraperExtractor
-from f_scrapper.logger import logger
+from internal_lib.logger import logger
 
 
 def run_scrape(

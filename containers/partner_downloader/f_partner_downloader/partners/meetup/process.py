@@ -8,7 +8,7 @@ from internal_lib.api.api_extractor import ApiExtractor, ExtractorArgs
 
 
 import f_partner_downloader.config as cfg
-from f_partner_downloader.logger import logger
+from internal_lib.logger import logger
 from .queries import get_group_query
 from .transformers import extract_past_events
 from .client import MeetupClient

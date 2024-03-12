@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from f_partner_uploader.logger import logger
+from internal_lib.logger import logger
 from f_partner_uploader.processes.events import upload_events
 from f_partner_uploader.processes.housing import upload_housing
 

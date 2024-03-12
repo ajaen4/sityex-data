@@ -8,7 +8,7 @@ from typing import Optional
 from internal_lib.aws.ssm import SSM
 from internal_lib.api.client import Client
 
-from f_partner_downloader.logger import logger
+from internal_lib.logger import logger
 
 
 class MeetupClient(Client):

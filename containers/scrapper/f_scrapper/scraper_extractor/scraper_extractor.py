@@ -1,6 +1,6 @@
 from enum import Enum
 
-from f_scrapper.logger import logger
+from internal_lib.logger import logger
 
 from .scraper_client import ScraperClient
 

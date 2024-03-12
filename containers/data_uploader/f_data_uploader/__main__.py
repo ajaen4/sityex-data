@@ -1,4 +1,4 @@
-from f_data_uploader.logger import logger
+from internal_lib.logger import logger
 from f_data_uploader.processes.cities import (
     upload_cities_to_firestore,
     upload_cities_cost_map,
