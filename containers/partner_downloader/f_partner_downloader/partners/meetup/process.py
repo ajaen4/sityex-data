@@ -26,7 +26,7 @@ def download_meetup():
         api_path="/gql",
         params={
             "query": get_group_query,
-            "variables": {"urlname": "sityex-madrid-community-expats"},
+            "variables": {"urlname": cfg.MEETUP_GROUP_URL_NAME},
         },
         process_output_func=extract_past_events,
     )
