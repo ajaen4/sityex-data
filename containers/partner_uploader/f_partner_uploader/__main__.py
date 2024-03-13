@@ -11,12 +11,12 @@ def main():
     now = datetime.now()
     TODAY_DATE = now.strftime("%d-%m-%Y")
 
-    logger.info("Starting SityEx events upload...")
+    logger.info("Starting Meetup events upload...")
 
-    SITYEX_DATA_DIR = "maps/sityex_events.csv"
-    upload_events(partner="sityex", events_data_dir=SITYEX_DATA_DIR)
+    MEETUP_DATA_DIR = f"bronze/partners/meetup/{TODAY_DATE}/"
+    upload_events(partner="meetup", events_data_dir=MEETUP_DATA_DIR)
 
-    logger.info("Finished SityEx events upload")
+    logger.info("Finished Meetup events upload")
 
     logger.info("Starting HousingAnywhere events upload...")
 
@@ -27,8 +27,8 @@ def main():
 
     logger.info("Starting Uniplaces events upload...")
 
-    HOUSING_ANYWHERE_DIR = f"silver/partners/uniplaces/{TODAY_DATE}/"
-    upload_housing(partner="uniplaces", housing_data_dir=HOUSING_ANYWHERE_DIR)
+    UNIPLACES_DIR = f"silver/partners/uniplaces/{TODAY_DATE}/"
+    upload_housing(partner="uniplaces", housing_data_dir=UNIPLACES_DIR)
 
     logger.info("Finished Uniplaces events upload")
 
