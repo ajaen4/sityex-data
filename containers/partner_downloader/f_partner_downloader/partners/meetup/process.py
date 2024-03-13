@@ -9,8 +9,11 @@ from internal_lib.api.api_extractor import ApiExtractor, ExtractorArgs
 
 import f_partner_downloader.config as cfg
 from internal_lib.logger import logger
-from .queries import get_group_query
-from .transformers import extract_past_events
+from .queries import past_events_query, curr_events_query
+from .transformers import (
+    extract_curr_events,
+    extract_past_events,
+)
 from .client import MeetupClient
 
 
@@ -22,16 +25,27 @@ def download_meetup():
     s3_client = S3(boto3.Session())
     content_writer = ContentWriter(s3_client)
 
-    extractor_args = ExtractorArgs(
+    past_events_args = ExtractorArgs(
         api_path="/gql",
         params={
-            "query": get_group_query,
+            "query": past_events_query,
             "variables": {"urlname": cfg.MEETUP_GROUP_URL_NAME},
         },
         process_output_func=extract_past_events,
     )
 
-    data = api_extractor.extract_content(extractor_args)
+    curr_events_args = ExtractorArgs(
+        api_path="/gql",
+        params={
+            "query": curr_events_query,
+            "variables": {"urlname": cfg.MEETUP_GROUP_URL_NAME},
+        },
+        process_output_func=extract_curr_events,
+    )
+
+    past_events_data = api_extractor.extract_content(past_events_args)
+    curr_events_data = api_extractor.extract_content(curr_events_args)
+    data = curr_events_data + past_events_data
 
     file_paths = FilePaths(
         bucket_name=cfg.DATA_BUCKET_NAME,
