@@ -23,7 +23,7 @@ jobs:
       - run: pip install -r ./pulumi/requirements.txt
       - uses: pulumi/actions@v4
         with:
-          work-dir: ./pulumi/
+          work-dir: ./iac/
           command: preview
           stack-name: ${{ github.base_ref }}
           comment-on-pr: true
