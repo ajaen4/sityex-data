@@ -6,6 +6,6 @@
 -e internal_lib/ --config-settings editable_mode=compat
 -r local_scripts/containers/requirements.txt
 -r tests/requirements.txt
--r pulumi/requirements.txt
+-r iac/requirements.txt
 pre-commit==3.4.0
 pytest==8.0.2

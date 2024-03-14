@@ -4,7 +4,7 @@ config:
     data_uploader:
       build_version: 0.1.6 # data_uploader version
       subnet_type: PUBLIC
-      env_variables:
+      env_vars:
         - name: ENV
           value: dev
     partner_uploader:
@@ -12,7 +12,7 @@ config:
       subnet_type: PUBLIC
       cpu: 1024
       memory: 4096
-      env_variables:
+      env_vars:
         - name: ENV
           value: dev
     partner_downloader:
@@ -20,13 +20,9 @@ config:
       subnet_type: PUBLIC
       cpu: 1024
       memory: 8192
-      env_variables:
-        - name: HOUSING_ANYWHERE_URL
-          value: https://housinganywhere.com/feeds/Sityex/Sityex.json
-        - name: UNIPLACES_URL
-          value: https://feeds.uniplaces.com/feeds/sityex-en-es?_format=xml
-        - name: MEETUP_GROUP_URL_NAME
-          value: sityex-madrid-community-expats
+      env_vars:
+        - type: SSM
+          path: /containers/partner_downloader
   jobs:
     all_cities:
       number_of_workers: 4

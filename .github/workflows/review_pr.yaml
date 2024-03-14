@@ -20,10 +20,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-region: ${{ secrets.AWS_REGION }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      - run: pip install -r ./pulumi/requirements.txt
+      - run: pip install -r ./iac/requirements.txt
       - uses: pulumi/actions@v4
         with:
-          work-dir: ./pulumi/
+          work-dir: ./iac/
           command: preview
           stack-name: ${{ github.base_ref }}
           comment-on-pr: true

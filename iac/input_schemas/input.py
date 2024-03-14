@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from pulumi import Config
-from .container_cfg import ContainerConfig, SubnetType
+from .container_cfg import ContainerConfig, SubnetType, EnvVarType, EnvVariable
 from .job_cfg import JobConfig
 from .orchestrator_cfg import OrchestratorConfig, OrchestratorState
 
@@ -14,9 +14,9 @@ class Input:
 
     @classmethod
     def from_cfg(cls, iac_cfg: Config):
-        containers_cfg_fmt = Input.serialize_containers_cfg(iac_cfg)
-        jobs_cfgs_fmt = Input.serialize_jobs_cfg(iac_cfg)
-        orchestrators_cfgs_fmt = Input.serialize_orchest_cfg(iac_cfg)
+        containers_cfg_fmt = Input.srl_containers_cfg(iac_cfg)
+        jobs_cfgs_fmt = Input.srl_jobs_cfg(iac_cfg)
+        orchestrators_cfgs_fmt = Input.srl_orchest_cfg(iac_cfg)
 
         return cls(
             containers_cfg=containers_cfg_fmt,
@@ -25,7 +25,7 @@ class Input:
         )
 
     @staticmethod
-    def serialize_containers_cfg(iac_cfg: Config) -> list[ContainerConfig]:
+    def srl_containers_cfg(iac_cfg: Config) -> list[ContainerConfig]:
         containers_cfg = iac_cfg.get_object("containers", {})
         containers_cfg_fmt = list()
 
@@ -34,8 +34,11 @@ class Input:
 
             extra_container_args = dict()
 
-            if "env_variables" in config:
-                extra_container_args["env_variables"] = config["env_variables"]
+            if "env_vars" in config:
+                extra_container_args["env_vars"] = Input.srl_env_vars(
+                    config["env_vars"]
+                )
+
             if "cron_expression" in config:
                 extra_container_args["cron_expression"] = config["cron_expression"]
             if "cpu" in config:
@@ -56,7 +59,31 @@ class Input:
         return containers_cfg_fmt
 
     @staticmethod
-    def serialize_jobs_cfg(iac_cfg: Config) -> list[JobConfig]:
+    def srl_env_vars(env_vars: list[dict]) -> list[EnvVariable]:
+        env_vars_fmt = list()
+
+        for variable in env_vars:
+            extra_container_args = dict()
+
+            if "name" in variable:
+                extra_container_args["name"] = variable["name"]
+            if "value" in variable:
+                extra_container_args["value"] = variable["value"]
+            if "type" in variable:
+                extra_container_args["type"] = EnvVarType(variable["type"])
+            if "path" in variable:
+                extra_container_args["path"] = variable["path"]
+
+            env_vars_fmt.append(
+                EnvVariable(
+                    **extra_container_args,
+                )
+            )
+
+        return env_vars_fmt
+
+    @staticmethod
+    def srl_jobs_cfg(iac_cfg: Config) -> list[JobConfig]:
         jobs_cfgs = iac_cfg.get_object("jobs", {})
         jobs_cfgs_fmt = list()
 
@@ -87,7 +114,7 @@ class Input:
         return jobs_cfgs_fmt
 
     @staticmethod
-    def serialize_orchest_cfg(iac_cfg: Config) -> list[OrchestratorConfig]:
+    def srl_orchest_cfg(iac_cfg: Config) -> list[OrchestratorConfig]:
         orchestrator_cfg = iac_cfg.get_object("orchestrators", {})
         orchestrator_cfg_fmt = list()
 

@@ -6,8 +6,9 @@ from pulumi_aws import ecs, iam, cloudwatch
 from .repository import Repository
 from .image import Image
 
-from input_schemas import ContainerConfig, SubnetType
+from input_schemas import ContainerConfig, SubnetType, EnvVarType
 from resource_types import ResourceTypes
+from services import ssm_client
 
 
 class Container:
@@ -27,7 +28,7 @@ class Container:
     def _create_task_def(self, baseline_stack_ref: pulumi.StackReference) -> dict:
         container_name = self.container_cfg.container_name
         version = self.container_cfg.build_version
-        env_variables = self.container_cfg.env_variables
+        env_vars = self.get_env_vars()
         stack_name = pulumi.get_stack()
 
         self.cluster = ecs.Cluster(
@@ -72,7 +73,7 @@ class Container:
                                 "value": args["data_bucket_name"],
                             },
                         ]
-                        + env_variables,
+                        + env_vars,
                     }
                 ]
             )
@@ -92,6 +93,19 @@ class Container:
                 "Name": f"{container_name}-task-def",
             },
         )
+
+    def get_env_vars(self) -> list[dict]:
+        env_vars = list()
+        for env_var in self.container_cfg.env_vars:
+            if env_var.type == EnvVarType.SSM:
+                param = ssm_client.get_parameter(env_var.path)
+                json_param = json.loads(param)
+                for key, value in json_param.items():
+                    env_vars.append({"name": key, "value": value})
+            else:
+                env_vars.append({"name": env_var.name, "value": env_var.value})
+
+        return env_vars
 
     def _attach_event_rule(
         self,
