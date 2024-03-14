@@ -3,7 +3,7 @@ import copy
 from google.cloud import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 
-from f_partner_uploader.logger import logger
+from internal_lib.logger import logger
 import f_partner_uploader.config as cfg
 from f_partner_uploader.services import fire_client, s3_client
 

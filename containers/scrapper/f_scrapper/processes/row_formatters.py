@@ -2,7 +2,7 @@ from itertools import chain
 import re
 import boto3
 
-from aws_lib.s3 import S3
+from internal_lib.aws.s3 import S3
 from parser.number import is_number
 from parser.strings import remove_parentheses_in, transform_to_db_name
 from parser.geo_codes import get_country_3_code

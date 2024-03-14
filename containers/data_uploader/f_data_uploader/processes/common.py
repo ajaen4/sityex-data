@@ -1,4 +1,4 @@
-from aws_lib.s3 import S3
+from internal_lib.aws.s3 import S3
 
 import f_data_uploader.config as cfg
 

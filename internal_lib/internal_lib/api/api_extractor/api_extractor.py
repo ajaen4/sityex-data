@@ -1,6 +1,6 @@
-from f_api_extractor.logger import logger
+from internal_lib.logger import logger
 
-from f_api_extractor.clients import Client
+from internal_lib.api.client import Client
 
 from .extractor_args import ExtractorArgs
 

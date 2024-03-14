@@ -1,6 +1,6 @@
 from enum import Enum
 
-from files.file_paths import FilePaths
+from internal_lib.files.file_paths import FilePaths
 
 from f_scrapper.processes.scrape_schemas import (
     HTMLElem,

@@ -3,7 +3,7 @@ import polars as pl
 from polars import col
 from copy import deepcopy
 
-from f_data_uploader.logger import logger
+from internal_lib.logger import logger
 import f_data_uploader.config as cfg
 from f_data_uploader.services import fire_client, s3_client
 from .common import get_file_path

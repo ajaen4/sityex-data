@@ -1,10 +1,11 @@
--e containers/scrapper/
--e containers/api_extractor/
--e containers/data_uploader/
--e containers/partner_uploader/
--e containers/partner_downloader/
--e libs/
+-e containers/scrapper/ --config-settings editable_mode=compat
+-e containers/api_extractor/ --config-settings editable_mode=compat
+-e containers/data_uploader/ --config-settings editable_mode=compat
+-e containers/partner_uploader/ --config-settings editable_mode=compat
+-e containers/partner_downloader/ --config-settings editable_mode=compat
+-e internal_lib/ --config-settings editable_mode=compat
 -r local_scripts/containers/requirements.txt
 -r tests/requirements.txt
+-r pulumi/requirements.txt
 pre-commit==3.4.0
 pytest==8.0.2

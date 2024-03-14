@@ -3,9 +3,9 @@ import json
 import boto3
 from google.oauth2 import service_account
 
-from aws_lib.s3 import S3
-from aws_lib.ssm import SSM
-from gcp_lib.gdrive import GDrive
+from internal_lib.aws.s3 import S3
+from internal_lib.aws.ssm import SSM
+from internal_lib.gcp.gdrive import GDrive
 
 SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
 

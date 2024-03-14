@@ -22,7 +22,7 @@ class LakeJobs:
             "logger-script",
             bucket=baseline_stack_ref.get_output("jobs_bucket_name"),
             key=f"{stack_name}/logger.py",
-            source=pulumi.FileAsset("../job_scripts/logger.py"),
+            source=pulumi.FileAsset("../internal_lib/internal_lib/logger/logger.py"),
         )
 
     def create_role(self):

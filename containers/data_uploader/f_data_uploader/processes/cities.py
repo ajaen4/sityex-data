@@ -1,9 +1,9 @@
 from copy import deepcopy
 
-from aws_lib.s3 import S3
-from parser.strings import remove_diacritics
+from internal_lib.aws.s3 import S3
+from internal_lib.parser.strings import remove_diacritics
 
-from f_data_uploader.logger import logger
+from internal_lib.logger import logger
 import f_data_uploader.config as cfg
 from f_data_uploader.services import fire_client, s3_client
 from .common import get_file_path

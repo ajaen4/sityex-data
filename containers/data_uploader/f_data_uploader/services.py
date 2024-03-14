@@ -3,8 +3,8 @@ import json
 import boto3
 from google.cloud import firestore
 
-from aws_lib.s3 import S3
-from aws_lib.ssm import SSM
+from internal_lib.aws.s3 import S3
+from internal_lib.aws.ssm import SSM
 
 import f_data_uploader.config as cfg
 

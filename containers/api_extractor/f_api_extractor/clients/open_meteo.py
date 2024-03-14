@@ -2,10 +2,10 @@ import requests
 from typing import Optional
 import boto3
 
-from aws_lib.ssm import SSM
+from internal_lib.aws.ssm import SSM
 
-from f_api_extractor.logger import logger
-from .client import Client
+from internal_lib.logger import logger
+from internal_lib.api.client import Client
 from .exceptions.limit_exceeded import APILimitExceeded
 
 
