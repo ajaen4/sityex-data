@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 from internal_lib.aws.s3 import S3
-from parser.strings import remove_diacritics
+from internal_lib.parser.strings import remove_diacritics
 
 from internal_lib.logger import logger
 import f_data_uploader.config as cfg

@@ -1,12 +1,11 @@
 from google.cloud import firestore
-from google.cloud.firestore_v1.base_query import FieldFilter
 
 from internal_lib.logger import logger
 import f_partner_uploader.config as cfg
 from f_partner_uploader.services import fire_client, s3_client
 
 
-def upload_events(partner: str, events_data_dir: str):
+def upload_events(events_data_dir: str):
     events_data_path = s3_client.list_files(
         cfg.DATA_BUCKET_NAME, events_data_dir, suffix=".csv"
     )[0]
@@ -18,11 +17,11 @@ def upload_events(partner: str, events_data_dir: str):
     logger.info(f"Uploading city_id {MADRID_CITY_ID}, city_name: Madrid...")
 
     events_ref = collection_ref.document(MADRID_CITY_ID).collection("events")
-    upload_events_city_data(events_ref, events_data, partner)
+    upload_events_city_data(events_ref, events_data)
 
 
 def upload_events_city_data(
-    events_ref: firestore.CollectionReference, events_data: list[dict], partner: str
+    events_ref: firestore.CollectionReference, events_data: list[dict]
 ):
     event_ids = [doc.id for doc in events_ref.stream()]
 

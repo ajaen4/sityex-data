@@ -14,7 +14,7 @@ def extract_curr_events(results: dict) -> list[dict[str]]:
 
 def extract_event(event: dict) -> dict:
     return {
-        "event_id": f"m{event['node']['id']}",
+        "event_id": event["node"]["id"],
         "title": event["node"]["title"],
         "description": event["node"]["description"],
         "venue_name": event["node"]["venue"]["name"],
