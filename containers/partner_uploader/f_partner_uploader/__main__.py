@@ -13,8 +13,8 @@ def main():
 
     logger.info("Starting Meetup events upload...")
 
-    MEETUP_DATA_DIR = f"bronze/partners/meetup/{TODAY_DATE}/"
-    upload_events(partner="meetup", events_data_dir=MEETUP_DATA_DIR)
+    MEETUP_DATA_DIR = f"silver/partners/meetup/{TODAY_DATE}/"
+    upload_events(events_data_dir=MEETUP_DATA_DIR)
 
     logger.info("Finished Meetup events upload")
 

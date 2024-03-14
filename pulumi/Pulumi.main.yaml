@@ -2,13 +2,13 @@ config:
   aws:region: eu-west-1
   containers:
     data_uploader:
-      build_version: 0.1.5 # data_uploader version
+      build_version: 0.1.6 # data_uploader version
       subnet_type: PUBLIC
       env_variables:
         - name: ENV
           value: prod
     partner_uploader:
-      build_version: 1.3.13 # partner_uploader version
+      build_version: 1.3.14 # partner_uploader version
       subnet_type: PUBLIC
       cpu: 1024
       memory: 4096
@@ -16,7 +16,7 @@ config:
         - name: ENV
           value: prod
     partner_downloader:
-      build_version: 0.3.5 # partner_downloader version
+      build_version: 0.3.6 # partner_downloader version
       subnet_type: PUBLIC
       cpu: 1024
       memory: 8192
@@ -71,10 +71,14 @@ config:
       number_of_workers: 2
       args:
         --TESTING_PREFIX: "None"
+    meetup:
+      number_of_workers: 2
+      args:
+        --TESTING_PREFIX: "None"
+        --TESTING_CITY_ID: "None"
   orchestrators:
     partner_workflow:
       type: STANDARD
-      cron_expression: cron(0 4/12 ? * * *)
       states:
         - name: Download partner data
           type: Task
@@ -93,6 +97,12 @@ config:
                 - name: Uniplaces job
                   type: Task
                   resource: uniplaces
+                  is_end: true
+            - name: Meetup branch
+              states:
+                - name: Meetup job
+                  type: Task
+                  resource: meetup
                   is_end: true
         - name: Upload data
           type: Task
