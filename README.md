@@ -22,5 +22,5 @@ The project's structure is the following:
 - internal_lib: sityex internal library. Contains code to interact with APIs, AWS, files, GCP and parse data.
 - job_scripts: PySpark jobs to process data. These are used as the scripts for our glue jobs.
 - local_scripts: scripts to execute the container's code locally for testing purposses.
-- pulumi: Pulumi IaC code.
+- iac: Pulumi IaC code.
 - tests: pytests unit tests.
