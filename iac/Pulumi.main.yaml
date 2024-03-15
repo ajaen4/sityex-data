@@ -75,6 +75,7 @@ config:
   orchestrators:
     partner_workflow:
       type: STANDARD
+      cron_expression: cron(0 4/12 ? * * *)
       states:
         - name: Download partner data
           type: Task
