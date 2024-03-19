@@ -328,7 +328,7 @@ def main():
     logger.info("Adding partner field...")
 
     catalog_with_partner = catalog_with_formatted_descs.withColumn(
-        "partner", lit("fever")
+        "partner", lit("meetup")
     ).withColumn("event_id", concat(lit("f"), col("event_id")))
 
     logger.info("Added partner field")
