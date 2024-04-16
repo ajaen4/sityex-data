@@ -8,7 +8,9 @@ from .job import Job
 
 
 class LakeJobs:
-    def __init__(self, baseline_stack_ref: pulumi.StackReference, input: Input):
+    def __init__(
+        self, baseline_stack_ref: pulumi.StackReference, input: Input
+    ):
         self.create_common_res(baseline_stack_ref)
 
         self.roles: dict[str, iam.Role] = dict()
@@ -22,7 +24,9 @@ class LakeJobs:
             "logger-script",
             bucket=baseline_stack_ref.get_output("jobs_bucket_name"),
             key=f"{stack_name}/logger.py",
-            source=pulumi.FileAsset("../internal_lib/internal_lib/logger/logger.py"),
+            source=pulumi.FileAsset(
+                "../internal_lib/internal_lib/logger/logger.py"
+            ),
         )
 
     def create_role(self):
@@ -125,11 +129,13 @@ class LakeJobs:
 
     def create_jobs(
         self, input: Input, baseline_stack_ref: pulumi.StackReference
-    ) -> dict[dict]:
+    ):
         self.jobs: list[Job] = list()
         for job_cfg in input.jobs_cfgs:
             self.jobs.append(
-                Job(job_cfg, self.roles, self.logger_script, baseline_stack_ref)
+                Job(
+                    job_cfg, self.roles, self.logger_script, baseline_stack_ref
+                )
             )
 
     def get_resources(self) -> dict[str, dict]:

@@ -13,7 +13,9 @@ class Image:
     def push_image(self, version: str):
         image_tag = f"{self.name}-{version}"
         skip_push = self.ecr_repository.repository_url.apply(
-            lambda repository_url: self._is_image_in_ecr(repository_url, image_tag)
+            lambda repository_url: self._is_image_in_ecr(
+                repository_url, image_tag
+            )
         )
         self._authenticate()
         image = docker.Image(
@@ -24,7 +26,7 @@ class Image:
                     "BUILDKIT_INLINE_CACHE": "1",
                 },
                 context="../",
-                dockerfile=f"../containers/{self.name}/Dockerfile",
+                dockerfile=f"../container_imgs/{self.name}/Dockerfile",
                 platform="linux/amd64",
             ),
             image_name=self.ecr_repository.repository_url.apply(

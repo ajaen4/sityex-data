@@ -31,7 +31,8 @@ def main():
     glueContext = GlueContext(sc)
     spark = glueContext.spark_session
     spark.conf.set(
-        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs", "false"
+        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        "false",
     )
 
     job = Job(glueContext)
@@ -102,7 +103,9 @@ def main():
         .withColumn("housing_id", concat(lit("un"), col("id")))
         .withColumn(
             "link",
-            concat(col("url"), lit("/?mtm_campaign=SityEx&mtm_source=Affiliate")),
+            concat(
+                col("url"), lit("/?mtm_campaign=SityEx&mtm_source=Affiliate")
+            ),
         )
         .drop("url")
         .withColumn(
@@ -124,7 +127,9 @@ def main():
         .withColumnRenamed("content", "description")
         .withColumn(
             "description",
-            when(col("description").isNull(), "").otherwise(col("description")),
+            when(col("description").isNull(), "").otherwise(
+                col("description")
+            ),
         )
     )
 

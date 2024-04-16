@@ -42,7 +42,8 @@ def main():
     glueContext = GlueContext(sc)
     spark = glueContext.spark_session
     spark.conf.set(
-        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs", "false"
+        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        "false",
     )
 
     job = Job(glueContext)

@@ -1,4 +1,5 @@
 import json
+from typing import Any
 
 import pulumi
 from pulumi_aws import ecs, iam, cloudwatch
@@ -25,14 +26,15 @@ class Container:
         if self.container_cfg.cron_expression:
             self._attach_event_rule(baseline_stack_ref)
 
-    def _create_task_def(self, baseline_stack_ref: pulumi.StackReference) -> dict:
+    def _create_task_def(self, baseline_stack_ref: pulumi.StackReference):
         container_name = self.container_cfg.container_name
         version = self.container_cfg.build_version
         env_vars = self.get_env_vars()
         stack_name = pulumi.get_stack()
 
         self.cluster = ecs.Cluster(
-            f"{container_name}-cluster", name=f"{container_name}-cluster-{stack_name}"
+            f"{container_name}-cluster",
+            name=f"{container_name}-cluster-{stack_name}",
         )
 
         log_group = cloudwatch.LogGroup(
@@ -58,7 +60,9 @@ class Container:
                         "memory": self.container_cfg.memory,
                         "cpu": self.container_cfg.cpu,
                         "essential": True,
-                        "portMappings": [{"containerPort": 80, "hostPort": 80}],
+                        "portMappings": [
+                            {"containerPort": 80, "hostPort": 80}
+                        ],
                         "logConfiguration": {
                             "logDriver": "awslogs",
                             "options": {
@@ -110,7 +114,7 @@ class Container:
     def _attach_event_rule(
         self,
         baseline_stack_ref: pulumi.StackReference,
-    ):
+    ) -> None:
         container_name = self.container_cfg.container_name
         stack_name = pulumi.get_stack()
 
@@ -154,18 +158,20 @@ class Container:
                 task_count=1,
                 task_definition_arn=self.task_def.arn,
                 launch_type="FARGATE",
-                network_configuration={
-                    "assign_public_ip": self._has_public_ip(),
-                    "subnets": [self._get_subnet(baseline_stack_ref)],
-                    "security_groups": [self._get_security_group(baseline_stack_ref)],
-                },
+                network_configuration=cloudwatch.EventTargetEcsTargetNetworkConfigurationArgs(
+                    assign_public_ip=self._has_public_ip(),
+                    subnets=[self._get_subnet(baseline_stack_ref)],
+                    security_groups=[
+                        self._get_security_group(baseline_stack_ref)
+                    ],
+                ),
             ),
         )
 
     def get_resource_mapping(
         self,
         baseline_stack_ref: pulumi.StackReference,
-    ):
+    ) -> dict[str, dict[str, Any]]:
         subnet = self._get_subnet(baseline_stack_ref)
         security_group = self._get_security_group(baseline_stack_ref)
         return {
@@ -175,14 +181,20 @@ class Container:
                 "cluster": self.cluster,
                 "subnet": subnet,
                 "security_group": security_group,
-                "assign_public_ip": "ENABLED" if self._has_public_ip() else "DISABLED",
+                "assign_public_ip": "ENABLED"
+                if self._has_public_ip()
+                else "DISABLED",
             }
         }
 
-    def _get_security_group(self, baseline_stack_ref: pulumi.StackReference):
+    def _get_security_group(
+        self, baseline_stack_ref: pulumi.StackReference
+    ) -> pulumi.Output:
         return baseline_stack_ref.get_output("security_group_id")
 
-    def _get_subnet(self, baseline_stack_ref: pulumi.StackReference):
+    def _get_subnet(
+        self, baseline_stack_ref: pulumi.StackReference
+    ) -> pulumi.Output:
         if self.container_cfg.subnet_type == SubnetType.PRIVATE:
             return baseline_stack_ref.get_output("private_subnet_id")
         else:
@@ -190,5 +202,5 @@ class Container:
 
     def _has_public_ip(
         self,
-    ):
+    ) -> bool:
         return self.container_cfg.subnet_type == SubnetType.PUBLIC

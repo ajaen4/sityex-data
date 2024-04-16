@@ -41,7 +41,8 @@ def main():
     glueContext = GlueContext(sc)
     spark = glueContext.spark_session
     spark.conf.set(
-        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs", "false"
+        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        "false",
     )
 
     job = Job(glueContext)
@@ -88,7 +89,9 @@ def main():
         .option("header", "true")
         .option("inferSchema", "true")
         .load(cities_cost_dir)
-        .withColumn("cost_id", regexp_extract(input_file_name(), file_name_pattern, 1))
+        .withColumn(
+            "cost_id", regexp_extract(input_file_name(), file_name_pattern, 1)
+        )
     )
 
     cities_ids = all_cities.select(
@@ -131,7 +134,9 @@ def main():
 
     no_match = costs_with_city_id.where(col("city_id").isNull())
     distinct_no_match = (
-        no_match.select("city_name", "country_name", "country_code").distinct().count()
+        no_match.select("city_name", "country_name", "country_code")
+        .distinct()
+        .count()
     )
     logger.info(f"Cities that didnt match {distinct_no_match}")
 
@@ -141,16 +146,16 @@ def main():
         & (col("city_name_city_ids") == col("city_name")),
         "left",
     )
-    no_exact_match = costs_with_exact_match.where(col("city_id").isNull()).count()
+    no_exact_match = costs_with_exact_match.where(
+        col("city_id").isNull()
+    ).count()
     logger.info(f"Cities that didnt match exactly {no_exact_match}")
 
     logger.info("Finished cities cost processing")
 
     logger.info("Starting countries cost processing...")
 
-    countries_costs_dir = (
-        f"s3a://{DATA_BUCKET_NAME}/bronze/countries/costs_by_id/{PROCESSED_DATE}/"
-    )
+    countries_costs_dir = f"s3a://{DATA_BUCKET_NAME}/bronze/countries/costs_by_id/{PROCESSED_DATE}/"
     file_name_pattern = ".*/(.*).csv"
 
     countries_all_costs = (
@@ -158,7 +163,9 @@ def main():
         .option("header", "true")
         .option("inferSchema", "true")
         .load(countries_costs_dir)
-        .withColumn("cost_id", regexp_extract(input_file_name(), file_name_pattern, 1))
+        .withColumn(
+            "cost_id", regexp_extract(input_file_name(), file_name_pattern, 1)
+        )
     )
 
     (
@@ -167,7 +174,9 @@ def main():
         .write.mode("overwrite")
         .options(header="True", delimiter=",")
         .partitionBy("country_code", "processed_date")
-        .csv(f"s3a://{DATA_BUCKET_NAME}{TESTING_PREFIX}/silver/countries/costs/")
+        .csv(
+            f"s3a://{DATA_BUCKET_NAME}{TESTING_PREFIX}/silver/countries/costs/"
+        )
     )
 
     logger.info("Finished countries cost processing")

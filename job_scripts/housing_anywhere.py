@@ -32,7 +32,8 @@ def main():
     glueContext = GlueContext(sc)
     spark = glueContext.spark_session
     spark.conf.set(
-        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs", "false"
+        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        "false",
     )
 
     job = Job(glueContext)
@@ -88,8 +89,11 @@ def main():
 
     logger.info("Filtering listings...")
 
-    spanish_listings = listings.where(col("location.countryCode") == "ES").withColumn(
-        "two_digit_postal_code_listing", col("location.postalCode").substr(1, 2)
+    spanish_listings = listings.where(
+        col("location.countryCode") == "ES"
+    ).withColumn(
+        "two_digit_postal_code_listing",
+        col("location.postalCode").substr(1, 2),
     )
     num_spanish_list = spanish_listings.count()
     logger.info(f"Number of Spanish listings: {num_spanish_list}")

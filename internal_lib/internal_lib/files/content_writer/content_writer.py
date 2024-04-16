@@ -23,7 +23,9 @@ class ContentWriter:
         file_paths: FilePaths,
         content_type: ContentType = None,
     ):
-        local_path = self._write_local_content(file_paths, output, content_type)
+        local_path = self._write_local_content(
+            file_paths, output, content_type
+        )
         self._write_s3_content(file_paths, local_path)
 
     def _write_local_content(

@@ -3,7 +3,7 @@ import pulumi
 
 from containers import ContainerTasks
 from lake_jobs import LakeJobs
-from orchestrators import Orchestrators
+from orchest.orchestrators import Orchestrators
 from input_schemas import Input
 
 config = Config()

@@ -41,7 +41,8 @@ def main():
     glueContext = GlueContext(sc)
     spark = glueContext.spark_session
     spark.conf.set(
-        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs", "false"
+        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        "false",
     )
 
     job = Job(glueContext)
@@ -73,8 +74,12 @@ def main():
     tags = (
         weather.groupBy("city_id", "timezone")
         .agg(
-            round(avg(col("avg_cloud_cover_percent"))).alias("avg_cloud_cover_percent"),
-            round(avg(col("avg_humidity_2m_percent"))).alias("avg_humidity_2m_percent"),
+            round(avg(col("avg_cloud_cover_percent"))).alias(
+                "avg_cloud_cover_percent"
+            ),
+            round(avg(col("avg_humidity_2m_percent"))).alias(
+                "avg_humidity_2m_percent"
+            ),
             round(avg(col("avg_daily_temp_celsius")), 2).alias(
                 "avg_daily_temp_celsius"
             ),
@@ -264,7 +269,9 @@ def main():
             "languages",
             "area_size",
             explode(
-                from_json(col("languages"), MapType(StringType(), StringType()))
+                from_json(
+                    col("languages"), MapType(StringType(), StringType())
+                )
             ).alias("lang_key", "language_name"),
         )
         .drop("lang_key")
@@ -274,7 +281,9 @@ def main():
             "languages_tag",
             concat_ws(
                 ",",
-                expr("TRANSFORM(languages, x -> regexp_replace(x, ' language', ''))"),
+                expr(
+                    "TRANSFORM(languages, x -> regexp_replace(x, ' language', ''))"
+                ),
             ),
         )
         .withColumn(
@@ -304,7 +313,9 @@ def main():
         .withColumnRenamed("country_code", "country_3_code")
     )
 
-    taxes_1_row = taxes.groupBy("country_3_code").pivot("tax_type").agg(first("value"))
+    taxes_1_row = (
+        taxes.groupBy("country_3_code").pivot("tax_type").agg(first("value"))
+    )
 
     taxes_1_row.show(10)
 
@@ -356,12 +367,14 @@ def main():
 
     indicators.show(10)
 
-    windowSpec = Window.partitionBy("country_3_code", "indicator_type").orderBy(
-        col("year").desc()
-    )
+    windowSpec = Window.partitionBy(
+        "country_3_code", "indicator_type"
+    ).orderBy(col("year").desc())
 
     indicators_latest = (
-        indicators.where(col("indicator_type").isin(["inflation", "unemployment_rate"]))
+        indicators.where(
+            col("indicator_type").isin(["inflation", "unemployment_rate"])
+        )
         .where(col("year") <= 2023)
         .withColumn("row_num", row_number().over(windowSpec))
         .where(col("row_num") == 1)
@@ -409,7 +422,9 @@ def main():
         if any(substring in col for substring in keep_cols)
     ]
     keep_taxes_cols = [
-        col for col in taxes_cols if any(substring in col for substring in keep_cols)
+        col
+        for col in taxes_cols
+        if any(substring in col for substring in keep_cols)
     ]
     keep_demographics_cols = [
         col
@@ -419,7 +434,11 @@ def main():
 
     country_tags = (
         indicators_tags.select(keep_indicators_cols)
-        .join(taxes_tags.select(keep_taxes_cols), how="fullouter", on="country_3_code")
+        .join(
+            taxes_tags.select(keep_taxes_cols),
+            how="fullouter",
+            on="country_3_code",
+        )
         .join(
             demographics_tags.select(keep_demographics_cols),
             how="fullouter",
