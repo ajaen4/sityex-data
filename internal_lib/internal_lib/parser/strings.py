@@ -2,11 +2,11 @@ import re
 import unicodedata
 
 
-def remove_parentheses_in(string: str):
+def remove_parentheses_in(string: str) -> str:
     return re.sub(r"\(.*?\)", "", string).strip()
 
 
-def transform_to_db_name(string: str):
+def transform_to_db_name(string: str) -> str:
     string = re.sub(r"\([^)]*\)", "", string.lower())
     string = re.sub(r"\s*[,:\-/]\s*", "_", string)
     string = re.sub(r"\s+", "_", string)
@@ -14,7 +14,7 @@ def transform_to_db_name(string: str):
     return string
 
 
-def remove_diacritics(text):
+def remove_diacritics(text) -> str:
     nfkd_form = unicodedata.normalize("NFKD", text)
     ascii_string = nfkd_form.encode("ASCII", "ignore")
     return ascii_string.decode("utf-8")

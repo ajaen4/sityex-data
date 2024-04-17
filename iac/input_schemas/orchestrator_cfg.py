@@ -13,9 +13,9 @@ class StateType(Enum):
 class OrchestratorState:
     name: str
     type: StateType
-    resource: str
+    resource: Optional[str] = None
     is_end: bool = False
-    branches: Optional[List["OrchestratorBranch"]] = field(default_factory=list)
+    branches: list["OrchestratorBranch"] = field(default_factory=list)
 
     def __init__(self, state: dict):
         self.name = state["name"]
@@ -26,7 +26,7 @@ class OrchestratorState:
         self.branches = (
             [OrchestratorBranch(**s) for s in state["branches"]]
             if "branches" in state
-            else None
+            else []
         )
 
 
@@ -45,4 +45,4 @@ class OrchestratorConfig:
     orchestrator_name: str
     type: str
     states: list[OrchestratorState]
-    cron_expression: str = None
+    cron_expression: str = ""

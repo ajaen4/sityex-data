@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from pulumi import Config
 from .container_cfg import ContainerConfig, SubnetType, EnvVarType, EnvVariable
@@ -8,9 +8,9 @@ from .orchestrator_cfg import OrchestratorConfig, OrchestratorState
 
 @dataclass
 class Input:
-    containers_cfg: list[ContainerConfig] = None
-    jobs_cfgs: list[JobConfig] = None
-    orchestrators_cfgs: list[OrchestratorConfig] = None
+    containers_cfg: list[ContainerConfig] = field(default_factory=list)
+    jobs_cfgs: list[JobConfig] = field(default_factory=list)
+    orchestrators_cfgs: list[OrchestratorConfig] = field(default_factory=list)
 
     @classmethod
     def from_cfg(cls, iac_cfg: Config):
@@ -26,7 +26,7 @@ class Input:
 
     @staticmethod
     def srl_containers_cfg(iac_cfg: Config) -> list[ContainerConfig]:
-        containers_cfg = iac_cfg.get_object("containers", {})
+        containers_cfg: dict = iac_cfg.get_object("containers", {})  # type: ignore[assignment]
         containers_cfg_fmt = list()
 
         for name, config in containers_cfg.items():
@@ -34,19 +34,22 @@ class Input:
 
             extra_container_args = dict()
 
-            if "env_vars" in config:
-                extra_container_args["env_vars"] = Input.srl_env_vars(
-                    config["env_vars"]
-                )
-
             if "cron_expression" in config:
-                extra_container_args["cron_expression"] = config["cron_expression"]
+                extra_container_args["cron_expression"] = config[
+                    "cron_expression"
+                ]
             if "cpu" in config:
                 extra_container_args["cpu"] = config["cpu"]
             if "memory" in config:
                 extra_container_args["memory"] = config["memory"]
             if "subnet_type" in config:
-                extra_container_args["subnet_type"] = SubnetType(config["subnet_type"])
+                extra_container_args["subnet_type"] = SubnetType(
+                    config["subnet_type"]
+                )
+            if "env_vars" in config:
+                extra_container_args["env_vars"] = Input.srl_env_vars(
+                    config["env_vars"]
+                )
 
             containers_cfg_fmt.append(
                 ContainerConfig(
@@ -84,12 +87,14 @@ class Input:
 
     @staticmethod
     def srl_jobs_cfg(iac_cfg: Config) -> list[JobConfig]:
-        jobs_cfgs = iac_cfg.get_object("jobs", {})
+        jobs_cfgs: dict = iac_cfg.get_object("jobs", {})  # type: ignore[assignment]
         jobs_cfgs_fmt = list()
 
         for name, config in jobs_cfgs.items():
             number_of_workers = (
-                config["number_of_workers"] if "number_of_workers" in config else 2
+                config["number_of_workers"]
+                if "number_of_workers" in config
+                else 2
             )
 
             extra_job_args = dict()
@@ -115,7 +120,7 @@ class Input:
 
     @staticmethod
     def srl_orchest_cfg(iac_cfg: Config) -> list[OrchestratorConfig]:
-        orchestrator_cfg = iac_cfg.get_object("orchestrators", {})
+        orchestrator_cfg: dict = iac_cfg.get_object("orchestrators", {})  # type: ignore[assignment]
         orchestrator_cfg_fmt = list()
 
         for name, config in orchestrator_cfg.items():
@@ -127,7 +132,9 @@ class Input:
             extra_orchest_args = dict()
 
             if "cron_expression" in config:
-                extra_orchest_args["cron_expression"] = config["cron_expression"]
+                extra_orchest_args["cron_expression"] = config[
+                    "cron_expression"
+                ]
 
             orchestrator_cfg_fmt.append(
                 OrchestratorConfig(

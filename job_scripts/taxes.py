@@ -21,14 +21,16 @@ from pyspark.sql.functions import (
 
 def main():
     args = getResolvedOptions(
-        sys.argv, ["JOB_NAME", "DATA_BUCKET_NAME", "PROCESSED_DATE", "TESTING_PREFIX"]
+        sys.argv,
+        ["JOB_NAME", "DATA_BUCKET_NAME", "PROCESSED_DATE", "TESTING_PREFIX"],
     )
 
     sc = SparkContext()
     glueContext = GlueContext(sc)
     spark = glueContext.spark_session
     spark.conf.set(
-        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs", "false"
+        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        "false",
     )
 
     job = Job(glueContext)
@@ -48,15 +50,21 @@ def main():
 
     logger.info("Starting taxes processing...")
 
-    file_name = f"s3a://{DATA_BUCKET_NAME}/bronze/countries/taxes/{PROCESSED_DATE}/"
+    file_name = (
+        f"s3a://{DATA_BUCKET_NAME}/bronze/countries/taxes/{PROCESSED_DATE}/"
+    )
     file_name_pattern = ".*/(.*).csv"
 
     taxes = (
         spark.read.format("csv")
         .option("header", "true")
         .load(file_name)
-        .withColumn("tax_type", regexp_extract(input_file_name(), file_name_pattern, 1))
-        .withColumn("year", concat(lit("20"), split(col("reference"), "/").getItem(1)))
+        .withColumn(
+            "tax_type", regexp_extract(input_file_name(), file_name_pattern, 1)
+        )
+        .withColumn(
+            "year", concat(lit("20"), split(col("reference"), "/").getItem(1))
+        )
         .select(
             "country_code",
             "year",
@@ -75,7 +83,9 @@ def main():
         .write.mode("overwrite")
         .options(header="True", delimiter=",")
         .partitionBy("country_code", "processed_date")
-        .csv(f"s3a://{DATA_BUCKET_NAME}{TESTING_PREFIX}/silver/countries/taxes/")
+        .csv(
+            f"s3a://{DATA_BUCKET_NAME}{TESTING_PREFIX}/silver/countries/taxes/"
+        )
     )
 
     logger.info("Finished taxes processing")

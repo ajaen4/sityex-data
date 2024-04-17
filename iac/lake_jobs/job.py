@@ -19,8 +19,10 @@ class Job:
         self._create_job(logger_script, baseline_stack_ref)
 
     def _create_job(
-        self, logger_script: s3.BucketObject, baseline_stack_ref: pulumi.StackReference
-    ) -> dict:
+        self,
+        logger_script: s3.BucketObject,
+        baseline_stack_ref: pulumi.StackReference,
+    ):
         stack_name = pulumi.get_stack()
 
         job_name = self.job_cfg.job_name
@@ -79,7 +81,9 @@ class Job:
                 default_arguments=job_arguments,
                 command=glue.JobCommandArgs(
                     script_location=pulumi.Output.all(
-                        bucket_name=baseline_stack_ref.get_output("jobs_bucket_name"),
+                        bucket_name=baseline_stack_ref.get_output(
+                            "jobs_bucket_name"
+                        ),
                         script_key=job_script.key,
                     ).apply(
                         lambda args: f's3://{args["bucket_name"]}/{args["script_key"]}'
