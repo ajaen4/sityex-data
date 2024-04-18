@@ -66,8 +66,9 @@ class MeetupClient(Client):
     ) -> Any:
         logger.info("Querying Meetup api...")
 
-        if params is None:
-            params = {"query": "", "variables": {}}
+        if not params:
+            params["query"] = ""
+            params["variables"] = {}
 
         data = {
             "query": params["query"],
