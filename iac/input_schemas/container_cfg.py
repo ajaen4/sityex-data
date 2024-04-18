@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Optional
 
 
 class SubnetType(Enum):
@@ -14,10 +15,10 @@ class EnvVarType(Enum):
 
 @dataclass
 class EnvVariable:
-    name: str = None
-    value: str = None
-    type: EnvVarType = None
-    path: str = None
+    name: str = ""
+    value: str = ""
+    type: Optional[EnvVarType] = None
+    path: str = ""
 
 
 @dataclass
@@ -27,5 +28,5 @@ class ContainerConfig:
     cpu: int = 256
     memory: int = 512
     env_vars: list[EnvVariable] = field(default_factory=list)
-    cron_expression: str = None
+    cron_expression: str = ""
     subnet_type: SubnetType = SubnetType.PRIVATE

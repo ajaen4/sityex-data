@@ -12,36 +12,43 @@ class ContainerTasks:
         self,
         baseline_stack_ref: pulumi.StackReference,
         input: Input,
-    ):
+    ) -> None:
         self.baseline_stack_ref = baseline_stack_ref
         self.input = input
-        self.resources = self.create_resources()
+        self.containers = self.create_resources()
 
-    def create_resources(self) -> dict[dict]:
+    def create_resources(self) -> list[Container]:
         self.create_role()
 
-        self.containers: list[Container] = list()
+        containers = list()
         for container_cfg in self.input.containers_cfg:
-            self.containers.append(
-                Container(container_cfg, self.task_exec_role, self.baseline_stack_ref)
+            containers.append(
+                Container(
+                    container_cfg, self.task_exec_role, self.baseline_stack_ref
+                )
             )
+        return containers
 
-    def create_role(self):
+    def create_role(self) -> None:
         stack_name = pulumi.get_stack()
 
         self.task_exec_role = iam.Role(
             "task-exec-role",
             name=f"task-exec-role-{stack_name}",
-            assume_role_policy={
-                "Version": "2012-10-17",
-                "Statement": [
-                    {
-                        "Action": "sts:AssumeRole",
-                        "Effect": "Allow",
-                        "Principal": {"Service": "ecs-tasks.amazonaws.com"},
-                    }
-                ],
-            },
+            assume_role_policy=json.dumps(
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "ecs-tasks.amazonaws.com"
+                            },
+                        }
+                    ],
+                }
+            ),
         )
 
         task_exec_policy = iam.Policy(
@@ -72,5 +79,7 @@ class ContainerTasks:
     ) -> dict[str, dict]:
         resources = dict()
         for container in self.containers:
-            resources.update(container.get_resource_mapping(baseline_stack_ref))
+            resources.update(
+                container.get_resource_mapping(baseline_stack_ref)
+            )
         return resources

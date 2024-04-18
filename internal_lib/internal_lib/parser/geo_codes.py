@@ -2,11 +2,11 @@ from pycountry import countries
 
 
 def get_country_3_code(
-    country_name: str = None,
-    alpha_2_code: str = None,
-    extra_country_codes: dict[str, str] = None,
-):
-    country_code = None
+    country_name: str = "",
+    alpha_2_code: str = "",
+    extra_country_codes: dict[str, str] = {},
+) -> str:
+    country_code = ""
     if country_name:
         country_code = get_country_code_from_name(country_name=country_name)
 
@@ -28,27 +28,27 @@ def get_country_3_code(
 
 
 def get_country_code_from_name(
-    country_name: str = None,
-):
+    country_name: str = "",
+) -> str:
     country = countries.get(name=country_name.title())
     if country:
-        return country.alpha_3 if country else None
+        return country.alpha_3 if country else ""
 
     try:
         return countries.lookup(country_name).alpha_3
     except LookupError:
-        return None
+        return ""
 
 
 def get_country_code_from_code(
-    alpha_2_code: str = None,
-):
+    alpha_2_code: str = "",
+) -> str:
     country = countries.get(alpha_2=alpha_2_code.upper())
 
-    return country.alpha_3 if country else None
+    return country.alpha_3 if country else ""
 
 
 def get_country_code_from_extra_code(
     country_name: str, extra_country_codes: dict[str, str]
-):
+) -> str:
     return extra_country_codes[country_name]

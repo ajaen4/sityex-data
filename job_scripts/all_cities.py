@@ -47,7 +47,8 @@ def main():
     glueContext = GlueContext(sc)
     spark = glueContext.spark_session
     spark.conf.set(
-        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs", "false"
+        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        "false",
     )
 
     job = Job(glueContext)
@@ -121,9 +122,13 @@ def main():
         )
 
     near_cols = [
-        col_name for col_name in cities_distance.columns if "is_near_" in col_name
+        col_name
+        for col_name in cities_distance.columns
+        if "is_near_" in col_name
     ]
-    condition = reduce(lambda x, y: x | y, (col(col_name) for col_name in near_cols))
+    condition = reduce(
+        lambda x, y: x | y, (col(col_name) for col_name in near_cols)
+    )
     near_cities = cities_distance.where(condition)
     num_near_cities = near_cities.count()
     logger.info(f"Num of near cities: {num_near_cities}")
@@ -146,7 +151,9 @@ def main():
     cities_to_exclude = near_cities.where(
         col("population") < BIG_CITY_POP_THRESHOLD
     ).select("geonameid")
-    final_cities = all_cities.join(cities_to_exclude, on="geonameid", how="left_anti")
+    final_cities = all_cities.join(
+        cities_to_exclude, on="geonameid", how="left_anti"
+    )
     num_final_cities = final_cities.count()
     logger.info(f"Num of final cities: {num_final_cities}")
 

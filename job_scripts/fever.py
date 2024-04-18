@@ -84,7 +84,10 @@ def main():
     ):
         response = translate_client.start_text_translation_job(
             JobName="TranslateFeverEvents",
-            InputDataConfig={"S3Uri": s3_input_uri, "ContentType": "text/plain"},
+            InputDataConfig={
+                "S3Uri": s3_input_uri,
+                "ContentType": "text/plain",
+            },
             OutputDataConfig={"S3Uri": s3_output_uri},
             DataAccessRoleArn=translate_role_arn,
             SourceLanguageCode="es",
@@ -94,7 +97,9 @@ def main():
 
     def check_job_status(translate_client, job_id):
         while True:
-            response = translate_client.describe_text_translation_job(JobId=job_id)
+            response = translate_client.describe_text_translation_job(
+                JobId=job_id
+            )
             status = response["TextTranslationJobProperties"]["JobStatus"]
             print(f"Job {job_id} status: {status}")
             if status in ["COMPLETED", "FAILED", "STOP_REQUESTED"]:
@@ -116,7 +121,8 @@ def main():
     glueContext = GlueContext(sc)
     spark = glueContext.spark_session
     spark.conf.set(
-        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs", "false"
+        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        "false",
     )
 
     job = Job(glueContext)
@@ -207,15 +213,21 @@ def main():
         )
         .withColumn("start_date", to_date(col("start_date"), "M/d/yyyy"))
         .withColumn("end_date", to_date(col("end_date"), "M/d/yyyy"))
-        .withColumn("city", remove_diacritics_udf(regexp_replace("city", "-", "/")))
         .withColumn(
-            "city", regexp_replace("city", "Tenerife", "Santa Cruz de Tenerife")
+            "city", remove_diacritics_udf(regexp_replace("city", "-", "/"))
+        )
+        .withColumn(
+            "city",
+            regexp_replace("city", "Tenerife", "Santa Cruz de Tenerife"),
         )
         .withColumn("city", regexp_replace("city", "Majorca", "Palma"))
         .withColumn("coordinates", regexp_replace("coordinates", "[()]", ""))
-        .withColumn("latitude", split(col("coordinates"), ";").getItem(0).cast("float"))
         .withColumn(
-            "longitude", split(col("coordinates"), ";").getItem(1).cast("float")
+            "latitude", split(col("coordinates"), ";").getItem(0).cast("float")
+        )
+        .withColumn(
+            "longitude",
+            split(col("coordinates"), ";").getItem(1).cast("float"),
         )
         .drop("coordinates")
         .withColumnRenamed("description", "description_es")
@@ -235,7 +247,9 @@ def main():
     logger.info("Starting data processing...")
 
     subcategories = (
-        catalog.select(explode(split(col("subcategory"), ",")).alias("subcategory"))
+        catalog.select(
+            explode(split(col("subcategory"), ",")).alias("subcategory")
+        )
         .select(trim(col("subcategory")).alias("subcategory"))
         .distinct()
         .orderBy("subcategory")
@@ -272,7 +286,9 @@ def main():
         "country", "state", "city", "city_name"
     )
 
-    subcategories_map_path = f"s3a://{DATA_BUCKET_NAME}/maps/subcategories_map.csv"
+    subcategories_map_path = (
+        f"s3a://{DATA_BUCKET_NAME}/maps/subcategories_map.csv"
+    )
     subcategories_map = (
         spark.read.format("csv")
         .option("header", "true")
@@ -290,15 +306,25 @@ def main():
                 split(col("subcategory"), ",")
             ),
         )
-        .select(*catalog_cols, explode(col("subcategory")).alias("subcategory"))
-        .join(subcategories_map, col("subcategory") == col("fever_subcategory"), "left")
+        .select(
+            *catalog_cols, explode(col("subcategory")).alias("subcategory")
+        )
+        .join(
+            subcategories_map,
+            col("subcategory") == col("fever_subcategory"),
+            "left",
+        )
         .groupBy("event_id")
         .agg(
             collect_set(col("subcategory")).alias("subcategories"),
-            collect_set(col("sityex_subcategory")).alias("sityex_subcategories"),
+            collect_set(col("sityex_subcategory")).alias(
+                "sityex_subcategories"
+            ),
         )
         .withColumn("subcategories", concat_ws(",", "subcategories"))
-        .withColumn("sityex_subcategories", concat_ws(",", "sityex_subcategories"))
+        .withColumn(
+            "sityex_subcategories", concat_ws(",", "sityex_subcategories")
+        )
         .withColumn(
             "sityex_subcategories",
             when(col("sityex_subcategories") == "", lit("Other")).otherwise(
@@ -319,8 +345,10 @@ def main():
 
     logger.info("Adding new lines to descriptions...")
 
-    catalog_with_formatted_descs = catalog_with_sityex_subcategories.withColumn(
-        "description_es", add_newlines_udf(col("description_es"))
+    catalog_with_formatted_descs = (
+        catalog_with_sityex_subcategories.withColumn(
+            "description_es", add_newlines_udf(col("description_es"))
+        )
     )
 
     logger.info("Added new lines to descriptions")
@@ -374,9 +402,7 @@ def main():
         logger.info(
             "Writing plan_name and description column into separate file for translation..."
         )
-        TRANSLATION_INPUT_BASE = (
-            f"silver/partners/fever/translation/daily/{PROCESSED_DATE_FEVER}/input"
-        )
+        TRANSLATION_INPUT_BASE = f"silver/partners/fever/translation/daily/{PROCESSED_DATE_FEVER}/input"
         for _, row in events_to_translate.toPandas().iterrows():
             s3_client.put_object(
                 Bucket=DATA_BUCKET_NAME,
@@ -396,9 +422,7 @@ def main():
 
         logger.info("Waiting for translation to finish...")
 
-        TRANS_OUT_KEY = (
-            f"silver/partners/fever/translation/daily/{PROCESSED_DATE_FEVER}/output"
-        )
+        TRANS_OUT_KEY = f"silver/partners/fever/translation/daily/{PROCESSED_DATE_FEVER}/output"
         translate_client = boto3.client("translate", region_name="eu-west-1")
 
         job_id_plan_name = start_translation_job(
@@ -430,14 +454,16 @@ def main():
         plan_name_trans = (
             plan_name_whole_texts.toDF(["file_name", "plan_name_en"])
             .withColumn(
-                "event_id", regexp_extract(col("file_name"), file_name_pattern, 1)
+                "event_id",
+                regexp_extract(col("file_name"), file_name_pattern, 1),
             )
             .drop("file_name")
         )
         description_trans = (
             desciption_whole_texts.toDF(["file_name", "description_en"])
             .withColumn(
-                "event_id", regexp_extract(col("file_name"), file_name_pattern, 1)
+                "event_id",
+                regexp_extract(col("file_name"), file_name_pattern, 1),
             )
             .drop("file_name")
         )
@@ -453,13 +479,17 @@ def main():
         logger.info("Translation finished")
 
     else:
-        logger.info("Skipping translation as there are no new events to translate")
+        logger.info(
+            "Skipping translation as there are no new events to translate"
+        )
 
     if all_translations_present and num_events_to_translate != 0:
         new_all_translations = all_translations.select(
             "event_id", "plan_name_en", "description_en"
         ).union(
-            output_translations.select("event_id", "plan_name_en", "description_en")
+            output_translations.select(
+                "event_id", "plan_name_en", "description_en"
+            )
         )
     elif all_translations_present and num_events_to_translate == 0:
         new_all_translations = all_translations
@@ -468,7 +498,9 @@ def main():
 
     logger.info("Writing backup...")
 
-    BACKUP_PATH = f"s3a://{DATA_BUCKET_NAME}/silver/partners/fever/translation/backup/"
+    BACKUP_PATH = (
+        f"s3a://{DATA_BUCKET_NAME}/silver/partners/fever/translation/backup/"
+    )
     (new_all_translations.write.mode("overwrite").parquet(BACKUP_PATH))
 
     logger.info("Wrote backup")

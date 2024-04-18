@@ -1,18 +1,21 @@
+# mypy: ignore-errors
+
 import csv
 import json
 from io import StringIO
 from ordered_set import OrderedSet
 import xml.etree.ElementTree as ET
+from typing import Any
 
 
-def write(path, content: list[list[str]]):
+def write(path, content: list[list[str]]) -> None:
     with open(path, "w", newline="") as csv_file:
         writer = csv.writer(csv_file)
         writer.writerows(content)
 
 
-def write_dics(path, content: list[dict[str, str]]):
-    unique_keys = OrderedSet()
+def write_dics(path, content: list[dict[str, str]]) -> None:
+    unique_keys: OrderedSet = OrderedSet()
     for row in content:
         unique_keys.update(row.keys())
 
@@ -22,28 +25,28 @@ def write_dics(path, content: list[dict[str, str]]):
         writer.writerows(content)
 
 
-def write_lists(path, content: list[dict[str, str]]):
+def write_lists(path, content: list[dict[str, str]]) -> None:
     with open(path, "w") as csv_file:
         writer = csv.writer(csv_file)
         writer.writerows(content)
 
 
-def write_json(path, content: list):
+def write_json(path, content: list) -> None:
     with open(path, "w") as multi_json_file:
         json.dump(content, multi_json_file, indent=2)
 
 
-def write_xml(path: str, content: str):
+def write_xml(path: str, content: str) -> None:
     root = ET.fromstring(content)
     tree = ET.ElementTree(root)
     tree.write(path, encoding="utf-8", xml_declaration=True)
 
 
-def format_dics(content: str):
+def format_dics(content: str) -> list[dict[str, Any]]:
     return list(csv.DictReader(StringIO(content)))
 
 
-def xml_to_csv(fields: list[str], content: str):
+def xml_to_csv(fields: list[str], content: str) -> list[list]:
     root = ET.fromstring(content)
     rows = []
     rows.append(fields)

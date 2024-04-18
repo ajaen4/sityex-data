@@ -38,7 +38,8 @@ def main():
     glueContext = GlueContext(sc)
     spark = glueContext.spark_session
     spark.conf.set(
-        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs", "false"
+        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        "false",
     )
 
     job = Job(glueContext)
@@ -69,7 +70,8 @@ def main():
         .option("header", "true")
         .load(file_name)
         .withColumn(
-            "indicator_type", regexp_extract(input_file_name(), file_name_pattern, 1)
+            "indicator_type",
+            regexp_extract(input_file_name(), file_name_pattern, 1),
         )
         .withColumn("json_col", translate(col("values_per_year"), "'", '"'))
         .withColumn("map", from_json(col("json_col"), map_schema))
@@ -95,7 +97,8 @@ def main():
         .option("header", "true")
         .load(file_name)
         .withColumn(
-            "indicator_type", regexp_extract(input_file_name(), file_name_pattern, 1)
+            "indicator_type",
+            regexp_extract(input_file_name(), file_name_pattern, 1),
         )
         .withColumn("json_col", translate(col("values_per_year"), "'", '"'))
         .withColumn("map", from_json(col("json_col"), map_schema))
@@ -120,7 +123,8 @@ def main():
         .option("header", "true")
         .load(file_name)
         .withColumn(
-            "indicator_type", regexp_extract(input_file_name(), file_name_pattern, 1)
+            "indicator_type",
+            regexp_extract(input_file_name(), file_name_pattern, 1),
         )
         .withColumn("json_col", translate(col("values_per_year"), "'", '"'))
         .withColumn("map", from_json(col("json_col"), map_schema))
@@ -145,9 +149,12 @@ def main():
         .option("header", "true")
         .load(file_name)
         .withColumn(
-            "indicator_type", regexp_extract(input_file_name(), file_name_pattern, 1)
+            "indicator_type",
+            regexp_extract(input_file_name(), file_name_pattern, 1),
         )
-        .withColumn("year", concat(lit("20"), split(col("reference"), "/").getItem(1)))
+        .withColumn(
+            "year", concat(lit("20"), split(col("reference"), "/").getItem(1))
+        )
         .select(
             "country_code",
             "year",
@@ -160,7 +167,9 @@ def main():
     logger.info("Finished job vacancies processing")
 
     all_indicators = (
-        inflation.union(unemployment_rate).union(purchasing_power).union(job_vacancies)
+        inflation.union(unemployment_rate)
+        .union(purchasing_power)
+        .union(job_vacancies)
     )
     all_indicators.show(10)
 
@@ -172,7 +181,9 @@ def main():
         .write.mode("overwrite")
         .options(header="True", delimiter=",")
         .partitionBy("country_code", "processed_date")
-        .csv(f"s3a://{DATA_BUCKET_NAME}{TESTING_PREFIX}/silver/countries/indicators/")
+        .csv(
+            f"s3a://{DATA_BUCKET_NAME}{TESTING_PREFIX}/silver/countries/indicators/"
+        )
     )
 
     logger.info("Finished indicators processing")

@@ -41,7 +41,8 @@ def main():
     glueContext = GlueContext(sc)
     spark = glueContext.spark_session
     spark.conf.set(
-        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs", "false"
+        "spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        "false",
     )
 
     job = Job(glueContext)
@@ -63,9 +64,7 @@ def main():
     if TESTING_CITY_ID:
         DIRECTORY_PATTERN = f"s3a://{DATA_BUCKET_NAME}/bronze/cities/weather/{TESTING_CITY_ID}/{PROCESSED_DATE}"
     else:
-        DIRECTORY_PATTERN = (
-            f"s3a://{DATA_BUCKET_NAME}/bronze/cities/weather/*/{PROCESSED_DATE}"
-        )
+        DIRECTORY_PATTERN = f"s3a://{DATA_BUCKET_NAME}/bronze/cities/weather/*/{PROCESSED_DATE}"
 
     logger.info(f"DATA_BUCKET_NAME: {DATA_BUCKET_NAME}")
     logger.info(f"PROCESSED_DATE: {PROCESSED_DATE}")
@@ -97,7 +96,9 @@ def main():
         .option("header", "true")
         .option("inferSchema", "true")
         .load(daily_weather_pattern)
-        .withColumn("city_id", regexp_extract(input_file_name(), FILE_NAME_PATTERN, 1))
+        .withColumn(
+            "city_id", regexp_extract(input_file_name(), FILE_NAME_PATTERN, 1)
+        )
     )
 
     daily_weather = all_cities.select(col("geonameid").alias("city_id")).join(
@@ -114,30 +115,44 @@ def main():
         .withColumn("month", month("date"))
         .withColumn(
             "sunrise_seconds",
-            hour("sunrise") * 3600 + minute("sunrise") * 60 + second("sunrise"),
+            hour("sunrise") * 3600
+            + minute("sunrise") * 60
+            + second("sunrise"),
         )
         .withColumn(
             "sunset_seconds",
             hour("sunset") * 3600 + minute("sunset") * 60 + second("sunset"),
         )
         .withColumn(
-            "daylight_hours", (col("sunset_seconds") - col("sunrise_seconds")) / 3600
+            "daylight_hours",
+            (col("sunset_seconds") - col("sunrise_seconds")) / 3600,
         )
         .groupBy("year", "month", "city_id", "timezone")
         .agg(
             avg("sunrise_seconds").alias("avg_sunrise_seconds"),
             avg("sunset_seconds").alias("avg_sunset_seconds"),
-            round(avg("mean_temperature_celsius"), 2).alias("avg_daily_temp_celsius"),
-            round(avg("precipitation_hours"), 2).alias("avg_daily_precipitation_hours"),
+            round(avg("mean_temperature_celsius"), 2).alias(
+                "avg_daily_temp_celsius"
+            ),
+            round(avg("precipitation_hours"), 2).alias(
+                "avg_daily_precipitation_hours"
+            ),
             round(avg("daylight_hours")).alias("avg_daylight_hours"),
         )
-        .withColumn("avg_sunrise_hour", floor(col("avg_sunrise_seconds") / 3600))
         .withColumn(
-            "avg_sunrise_minute", floor((col("avg_sunrise_seconds") % 3600) / 60)
+            "avg_sunrise_hour", floor(col("avg_sunrise_seconds") / 3600)
         )
-        .withColumn("avg_sunrise_second", floor(col("avg_sunrise_seconds") % 60))
+        .withColumn(
+            "avg_sunrise_minute",
+            floor((col("avg_sunrise_seconds") % 3600) / 60),
+        )
+        .withColumn(
+            "avg_sunrise_second", floor(col("avg_sunrise_seconds") % 60)
+        )
         .withColumn("avg_sunset_hour", floor(col("avg_sunset_seconds") / 3600))
-        .withColumn("avg_sunset_minute", floor((col("avg_sunset_seconds") % 3600) / 60))
+        .withColumn(
+            "avg_sunset_minute", floor((col("avg_sunset_seconds") % 3600) / 60)
+        )
         .withColumn("avg_sunset_second", floor(col("avg_sunset_seconds") % 60))
         .select(
             "year",
@@ -181,7 +196,9 @@ def main():
         .option("header", "true")
         .option("inferSchema", "true")
         .load(hourly_weather_pattern)
-        .withColumn("city_id", regexp_extract(input_file_name(), FILE_NAME_PATTERN, 1))
+        .withColumn(
+            "city_id", regexp_extract(input_file_name(), FILE_NAME_PATTERN, 1)
+        )
     )
     hourly_weather = all_cities.select(col("geonameid").alias("city_id")).join(
         hourly_weather, how="left", on="city_id"
@@ -197,7 +214,9 @@ def main():
         .withColumn("month", month("timestamp"))
         .groupBy("year", "month", "city_id", "timezone")
         .agg(
-            avg("cloud_cover_percent").cast("int").alias("avg_cloud_cover_percent"),
+            avg("cloud_cover_percent")
+            .cast("int")
+            .alias("avg_cloud_cover_percent"),
             avg("relativehumidity_2m_percent")
             .cast("int")
             .alias("avg_humidity_2m_percent"),
@@ -230,7 +249,9 @@ def main():
         .option("header", "true")
         .option("inferSchema", "true")
         .load(air_qual_pattern)
-        .withColumn("city_id", regexp_extract(input_file_name(), FILE_NAME_PATTERN, 1))
+        .withColumn(
+            "city_id", regexp_extract(input_file_name(), FILE_NAME_PATTERN, 1)
+        )
     )
 
     air_quality_num_cities = air_quality.select("city_id").distinct().count()
@@ -271,7 +292,11 @@ def main():
             ["city_id", "month", "timezone"],
             "inner",
         )
-        .join(air_qual_metrics.drop("year"), ["city_id", "month", "timezone"], "inner")
+        .join(
+            air_qual_metrics.drop("year"),
+            ["city_id", "month", "timezone"],
+            "inner",
+        )
     )
     num_cities_all = all_weather.select("city_id").distinct().count()
     logger.info(f"Num cities in all weather {num_cities_all}")
@@ -285,7 +310,9 @@ def main():
         .write.mode("overwrite")
         .options(header="True", delimiter=",")
         .partitionBy("city_id", "processed_date")
-        .csv(f"s3a://{DATA_BUCKET_NAME}{TESTING_PREFIX}/silver/cities/weather/")
+        .csv(
+            f"s3a://{DATA_BUCKET_NAME}{TESTING_PREFIX}/silver/cities/weather/"
+        )
     )
 
     logger.info("Finished weather write")

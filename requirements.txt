@@ -1,11 +1,13 @@
--e containers/scrapper/ --config-settings editable_mode=compat
--e containers/api_extractor/ --config-settings editable_mode=compat
--e containers/data_uploader/ --config-settings editable_mode=compat
--e containers/partner_uploader/ --config-settings editable_mode=compat
--e containers/partner_downloader/ --config-settings editable_mode=compat
+-e container_imgs/scrapper/ --config-settings editable_mode=compat
+-e container_imgs/api_extractor/ --config-settings editable_mode=compat
+-e container_imgs/data_uploader/ --config-settings editable_mode=compat
+-e container_imgs/partner_uploader/ --config-settings editable_mode=compat
+-e container_imgs/partner_downloader/ --config-settings editable_mode=compat
 -e internal_lib/ --config-settings editable_mode=compat
--r local_scripts/containers/requirements.txt
+-r local_scripts/run_containers/requirements.txt
 -r tests/requirements.txt
 -r iac/requirements.txt
 pre-commit==3.4.0
 pytest==8.0.2
+mypy==1.9.0
+types-requests==2.31.0

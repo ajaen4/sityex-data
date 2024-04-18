@@ -5,7 +5,7 @@ class SSM:
     def __init__(self, session: Session):
         self.session = session
 
-    def get_parameter(self, parameter_name: str, decrypt: bool = False):
+    def get_parameter(self, parameter_name: str, decrypt: bool = False) -> str:
         ssm_client = self.session.client("ssm")
 
         response = ssm_client.get_parameter(

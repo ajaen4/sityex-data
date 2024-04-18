@@ -4,6 +4,7 @@ repos:
     hooks:
       - id: black
         language_version: python3.11
+        args: ['--line-length', '79']
   - repo: local
     hooks:
       - id: pytest
@@ -11,3 +12,9 @@ repos:
         entry: ./.venv/bin/pytest tests
         pass_filenames: false
         language: system
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.9.0
+    hooks:
+      - id: mypy
+        args: ['--config-file=./mypy.ini']
+        additional_dependencies: [types-requests==2.31.0]
