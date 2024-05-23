@@ -40,7 +40,7 @@ make install
 To run the tests:
 
 ```bash
-    pytest
+pytest
 ```
 
 To deploy you need an active AWS account and valid credentials, you must also install the AWS cli. You will also need to set up Pulumi, see the [Getting Started Guide](https://www.pulumi.com/docs/clouds/aws/get-started/). Create a new project with two stacks, dev and main.
