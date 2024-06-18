@@ -160,7 +160,7 @@ class Container:
                 launch_type="FARGATE",
                 network_configuration=cloudwatch.EventTargetEcsTargetNetworkConfigurationArgs(
                     assign_public_ip=self._has_public_ip(),
-                    subnets=[self._get_subnet(baseline_stack_ref)],
+                    subnets=self._get_subnets(baseline_stack_ref),
                     security_groups=[
                         self._get_security_group(baseline_stack_ref)
                     ],
@@ -172,14 +172,14 @@ class Container:
         self,
         baseline_stack_ref: pulumi.StackReference,
     ) -> dict[str, dict[str, Any]]:
-        subnet = self._get_subnet(baseline_stack_ref)
+        subnets = self._get_subnets(baseline_stack_ref)
         security_group = self._get_security_group(baseline_stack_ref)
         return {
             self.container_cfg.container_name: {
                 "type": ResourceTypes.CONTAINER,
                 "task_def": self.task_def,
                 "cluster": self.cluster,
-                "subnet": subnet,
+                "subnets": subnets,
                 "security_group": security_group,
                 "assign_public_ip": "ENABLED"
                 if self._has_public_ip()
@@ -192,13 +192,13 @@ class Container:
     ) -> pulumi.Output:
         return baseline_stack_ref.get_output("security_group_id")
 
-    def _get_subnet(
+    def _get_subnets(
         self, baseline_stack_ref: pulumi.StackReference
     ) -> pulumi.Output:
         if self.container_cfg.subnet_type == SubnetType.PRIVATE:
-            return baseline_stack_ref.get_output("private_subnet_id")
+            return baseline_stack_ref.get_output("private_subnet_ids")
         else:
-            return baseline_stack_ref.get_output("public_subnet_id")
+            return baseline_stack_ref.get_output("public_subnet_ids")
 
     def _has_public_ip(
         self,
