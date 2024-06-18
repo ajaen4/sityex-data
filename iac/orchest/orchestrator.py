@@ -134,7 +134,7 @@ class Orchestrator:
             return pulumi.Output.all(
                 cluster_arn=resource["cluster"].arn,
                 task_def_arn=resource["task_def"].arn,
-                subnet=resource["subnet"],
+                subnets=resource["subnets"],
                 security_group=resource["security_group"],
                 assign_public_ip=resource["assign_public_ip"],
             ).apply(
@@ -146,7 +146,7 @@ class Orchestrator:
                         "TaskDefinition": args["task_def_arn"],
                         "NetworkConfiguration": {
                             "AwsvpcConfiguration": {
-                                "Subnets": [args["subnet"]],
+                                "Subnets": args["subnets"],
                                 "SecurityGroups": [args["security_group"]],
                                 "AssignPublicIp": args["assign_public_ip"],
                             }
